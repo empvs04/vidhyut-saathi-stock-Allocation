@@ -28,19 +28,18 @@ async function prepareNewArtwork() {
       .toBuffer();
   }
 
-  // 2. Load the new label design (1024x768)
+  // 2. Load the original label design (1024x768 - exact 4:3 2"x1.5" ratio)
   const baseLabel = await sharp(userLabelPath)
     .resize(1024, 768, { fit: 'fill' })
     .toBuffer();
 
-  // 3. White out the inner barcode box area (leaving outer borders intact)
-  // In 1024x768:
-  // Barcode box outer border: x=34 to 990, y=465 to 650
-  // Inner white area: x=40, y=475, width=944, height=165
+  // 3. Remove inner barcode box border completely (top line at y=467, inner left/right, and bottom line)
+  // while strictly PRESERVING:
+  // - Top elements and the bottom border of the "10 YEARS" & "3 YEARS WARRANTY" cards at Y=454
+  // - Outer card perimeter border (x=8..17, x=1004..1014)
+  // - Solid black bottom footer bar (y>=655)
   const cleanBarcodeBoxSvg = Buffer.from(
-    `<svg width="1024" height="768">
-      <rect x="42" y="475" width="940" height="165" fill="#FFFFFF" />
-    </svg>`
+    '<svg width="1024" height="768"><rect x="18" y="457" width="986" height="197" fill="#FFFFFF" /></svg>'
   );
 
   const cleanLabelBuffer = await sharp(baseLabel)
@@ -63,7 +62,7 @@ async function prepareNewArtwork() {
   await sharp(cleanLabelBuffer).png().toFile(path.join(frontendPublicDir, 'clean_label_template.png'));
   await sharp(baseLabel).jpeg({ quality: 98, chromaSubsampling: '4:4:4' }).toFile(path.join(frontendPublicDir, 'master_label.jpg'));
 
-  console.log('Successfully prepared new monochrome label template and assets (1024x768, 2"x1.5")!');
+  console.log('Successfully prepared master template with preserved warranty card borders and borderless barcode container!');
 }
 
 prepareNewArtwork().catch(console.error);

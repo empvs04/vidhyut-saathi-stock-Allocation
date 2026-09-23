@@ -89,25 +89,25 @@ export default function CardPreview({
         <div
           style={{
             position: 'absolute',
-            top: '60.5%',
-            left: '3%',
-            width: '94%',
-            height: '29.5%',
+            top: '62.0%',
+            left: '2.5%',
+            width: '95%',
+            height: '23.5%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'flex-start',
-            paddingTop: '6px',
+            justifyContent: 'center',
+            paddingTop: '2px',
             gap: '3px',
             pointerEvents: 'none',
           }}
         >
-          {/* Barcode Bars SVG */}
+          {/* Barcode Bars SVG (Wider: 82% width) */}
           <svg
             viewBox={`0 0 ${pattern.totalWidth} 40`}
             style={{
-              width: '68%',
-              height: '36%',
+              width: '82%',
+              height: '46%',
               shapeRendering: 'crispEdges',
             }}
           >
@@ -123,14 +123,14 @@ export default function CardPreview({
             ))}
           </svg>
 
-          {/* Human Readable Serial Number below barcode inside the same box */}
+          {/* Human Readable Serial Number below barcode inside the same box (Wider typography) */}
           <div
             style={{
-              fontSize: `${Math.max(8.5, width * 0.028)}px`,
-              fontWeight: '700',
+              fontSize: `${Math.max(9, width * 0.033)}px`,
+              fontWeight: '800',
               fontFamily: "'Courier New', 'Courier', monospace",
               color: '#000000',
-              letterSpacing: '0.6px',
+              letterSpacing: '1.4px',
               lineHeight: '1',
               textAlign: 'center',
             }}

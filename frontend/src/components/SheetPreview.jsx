@@ -213,42 +213,61 @@ export default function SheetPreview({
                   title={slot.serial ? `Slot #${slot.index + 1}: ${slot.serial}` : 'Empty Slot'}
                 >
                   {slot.active ? (
-                    <>
-                      {/* Mini Thumbnail Artwork */}
+                    <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
+                      {/* Master Label Artwork (Unstretched 4:3) */}
                       <img
                         src="/clean_label_template.png"
                         alt="label"
                         style={{
                           width: '100%',
-                          height: '62%',
+                          height: '100%',
                           objectFit: 'contain',
+                          display: 'block',
                           pointerEvents: 'none',
                         }}
                       />
-                      {/* Mini Barcode Bars */}
+                      {/* Dynamic Barcode & Series Overlay */}
                       <div
                         style={{
-                          height: `${4 * zoom}px`,
-                          backgroundColor: '#000000',
-                          width: '85%',
-                          margin: '0 auto',
-                          opacity: 0.9,
-                        }}
-                      />
-                      {/* Serial Text */}
-                      <div
-                        style={{
-                          fontSize: `${Math.max(5, 6 * zoom)}px`,
-                          fontWeight: '800',
-                          textAlign: 'center',
-                          fontFamily: 'monospace',
-                          color: '#0f172a',
-                          lineHeight: 1,
+                          position: 'absolute',
+                          top: '62.0%',
+                          left: '2.5%',
+                          width: '95%',
+                          height: '23.5%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          pointerEvents: 'none',
                         }}
                       >
-                        {slot.serial ? slot.serial.slice(-6) : ''}
+                        {/* Mini Barcode Bars */}
+                        <div
+                          style={{
+                            height: `${Math.max(2, 3.5 * zoom)}px`,
+                            backgroundColor: '#000000',
+                            width: '82%',
+                            margin: '0 auto',
+                            opacity: 0.95,
+                          }}
+                        />
+                        {/* Serial Text */}
+                        <div
+                          style={{
+                            fontSize: `${Math.max(4.5, 5.5 * zoom)}px`,
+                            fontWeight: '800',
+                            textAlign: 'center',
+                            fontFamily: "'Courier New', monospace",
+                            color: '#000000',
+                            lineHeight: 1,
+                            letterSpacing: '0.4px',
+                            marginTop: '1px',
+                          }}
+                        >
+                          {slot.serial ? slot.serial.slice(-8) : ''}
+                        </div>
                       </div>
-                    </>
+                    </div>
                   ) : (
                     <div
                       style={{

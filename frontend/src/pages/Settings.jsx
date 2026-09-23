@@ -92,7 +92,7 @@ export default function Settings() {
           <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '8px', borderBottom: '1px solid #f1f5f9' }}>
             <span style={{ color: '#64748b' }}>Backend Server:</span>
             <span style={{ color: health?.status === 'online' ? '#16a34a' : '#ef4444', fontWeight: '700' }}>
-              {health?.status === 'online' ? 'Online (Port 5000)' : 'Offline'}
+              {health?.status === 'online' ? 'Online (Operational)' : 'Offline'}
             </span>
           </div>
 

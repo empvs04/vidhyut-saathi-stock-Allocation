@@ -112,32 +112,33 @@ export async function renderBatchPDF({
 
           // 3. Draw Barcode inside the white barcode container
           // Exact physical card: 144 pt x 108 pt (2" x 1.5").
-          // White box: Y = 65.0 pt to 98.0 pt (height 33.0 pt).
-          // Barcode starts at 72.5 (7.5pt top margin), height 10.0pt
-          // Serial at 86.0 (3.5pt gap after barcode, 4pt above box bottom at 98pt)
+          // White barcode box in 1024x768 template:
+          // X = 24 to 1000 (3.38pt to 140.6pt, width = 137.25pt)
+          // Y = 462 to 652 (65.0pt to 91.7pt, height = 26.7pt)
           const scaleX = pos.width / 144;
           const scaleY = pos.height / 108;
-          const bcW = 90.0 * scaleX;
+          
+          // Wider barcode with generous top breathing room
+          const bcW = 114.0 * scaleX;
           const bcX = pos.x + (pos.width - bcW) / 2; // centered horizontally
-          const bcY = pos.y + 72.5 * scaleY; // 7.5pt top margin inside white box
-          const bcH = 10.0 * scaleY; // barcode bar height
+          const bcY = pos.y + 70.0 * scaleY; // generous ~5pt top breathing space from box top
+          const bcH = 10.2 * scaleY; // crisp barcode height
 
           doc.image(barcodePng, bcX, bcY, {
             width: bcW,
             height: bcH,
           });
 
-          // 4. Draw Human-Readable Serial Number below barcode, above bottom border
-          // textY = 86.5 → leaves ~4pt bottom gap before box bottom at ~98pt
-          const textY = pos.y + 86.5 * scaleY;
+          // 4. Draw Human-Readable Serial Number below barcode, wider and prominent
+          const textY = pos.y + 83.2 * scaleY;
           doc
             .font('Courier-Bold')
-            .fontSize(6.0 * Math.min(scaleX, scaleY))
+            .fontSize(6.5 * Math.min(scaleX, scaleY))
             .fillColor('#000000')
             .text(serial, pos.x, textY, {
               width: pos.width,
               align: 'center',
-              characterSpacing: 0.8 * scaleX,
+              characterSpacing: 1.3 * scaleX,
             });
 
           processedCount++;
@@ -221,27 +222,27 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = 'VS') {
   });
 
   // 3. Draw barcode inside the white box with top breathing room
-  // White box: Y ~65 to ~98. Barcode at 72.5 (7.5pt top gap), height 10pt.
-  const barcodeWidth = 90.0;
-  const barcodeHeight = 10.0;
+  // White box: Y = 65.0 to 91.7 pt (height 26.7pt), X = 3.4 to 140.6 pt
+  const barcodeWidth = 114.0;
+  const barcodeHeight = 10.2;
   const barcodeX = (144 - barcodeWidth) / 2;
-  const barcodeY = 72.5; // 7.5pt top margin inside white box
+  const barcodeY = 70.0; // generous ~5pt top breathing space from box top
 
   doc.image(barcodePng, barcodeX, barcodeY, {
     width: barcodeWidth,
     height: barcodeHeight,
   });
 
-  // 4. Draw serial number text above bottom border (4pt gap from box bottom)
-  const textY = 86.5;
+  // 4. Draw serial number text cleanly and prominently inside the box
+  const textY = 83.2;
   doc
     .font('Courier-Bold')
-    .fontSize(6.0)
+    .fontSize(6.5)
     .fillColor('#000000')
     .text(serialNumber, 0, textY, {
       width: 144,
       align: 'center',
-      characterSpacing: 0.8,
+      characterSpacing: 1.3,
     });
 
   doc.end();
