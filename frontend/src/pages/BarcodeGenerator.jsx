@@ -675,43 +675,23 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                     <label className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>
                       Serial Number
                     </label>
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      <button
-                        type="button"
-                        onClick={() => fetchNextSerial(cardSeries, true)}
-                        className="btn btn-secondary"
-                        style={{
-                          padding: '2px 7px',
-                          fontSize: '11px',
-                          minHeight: '22px',
-                          color: '#0066cc',
-                          whiteSpace: 'nowrap',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '3px',
-                        }}
-                        title="Fetch next available serial from DB"
-                      >
-                        <RefreshCw size={11} /> Sync DB
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleIncrementSingleSerial}
-                        className="btn btn-secondary"
-                        style={{
-                          padding: '2px 7px',
-                          fontSize: '11px',
-                          minHeight: '22px',
-                          whiteSpace: 'nowrap',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '3px',
-                        }}
-                        title="Generate Next Serial (+1)"
-                      >
-                        +1 Next
-                      </button>
-                    </div>
+                    <button
+                      type="button"
+                      onClick={handleIncrementSingleSerial}
+                      className="btn btn-secondary"
+                      style={{
+                        padding: '2px 7px',
+                        fontSize: '11px',
+                        minHeight: '22px',
+                        whiteSpace: 'nowrap',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                      }}
+                      title="Generate Next Serial (+1)"
+                    >
+                      +1 Next
+                    </button>
                   </div>
                   <input
                     type="text"
@@ -926,29 +906,9 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                     </div>
 
                     <div className="form-group" style={{ minWidth: 0 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
-                        <label className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>
-                          Starting Serial Number
-                        </label>
-                        <button
-                          type="button"
-                          onClick={() => fetchNextSerial(cardSeries, false)}
-                          className="btn btn-secondary"
-                          style={{
-                            padding: '2px 7px',
-                            fontSize: '11px',
-                            minHeight: '22px',
-                            color: '#0066cc',
-                            whiteSpace: 'nowrap',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '3px',
-                          }}
-                          title="Fetch next available serial from database"
-                        >
-                          <RefreshCw size={11} /> Auto Next
-                        </button>
-                      </div>
+                      <label className="form-label" style={{ marginBottom: '5px' }}>
+                        Starting Serial Number
+                      </label>
                       <input
                         type="text"
                         className="form-input font-mono"
