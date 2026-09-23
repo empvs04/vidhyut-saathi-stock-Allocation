@@ -9,14 +9,23 @@ export default function SheetPreview({
   pageNumber = 1,
   onSelectLabel,
   customSerials = null,
+  sheetPreset = null,
 }) {
   const [zoom, setZoom] = useState(1);
   const [showCutLines, setShowCutLines] = useState(true);
   const [selectedSlot, setSelectedSlot] = useState(0);
 
-  // Compute 55 labels for this page
-  const totalSlots = 55;
-  const pageStartIndex = (pageNumber - 1) * 55;
+  // Dynamic grid configuration from preset or default 12x18
+  const cols = sheetPreset?.columns || 5;
+  const rows = sheetPreset?.rows || 11;
+  const totalSlots = cols * rows;
+  const sheetWInches = sheetPreset?.sheetWidthInches || 12;
+  const sheetHInches = sheetPreset?.sheetHeightInches || 18;
+  const presetTitle = sheetPreset?.name || '12" × 18" Sheet';
+  const marginHInches = sheetPreset?.marginHorizontalInches || 0.4;
+  const marginVInches = sheetPreset?.marginVerticalInches || 0.3;
+
+  const pageStartIndex = (pageNumber - 1) * totalSlots;
 
   const slots = [];
 
@@ -28,8 +37,8 @@ export default function SheetPreview({
       slots.push({
         index: i,
         serial,
-        col: i % 5,
-        row: Math.floor(i / 5),
+        col: i % cols,
+        row: Math.floor(i / cols),
         active: isWithinQuantity,
       });
     }
@@ -49,17 +58,17 @@ export default function SheetPreview({
       slots.push({
         index: i,
         serial,
-        col: i % 5,
-        row: Math.floor(i / 5),
+        col: i % cols,
+        row: Math.floor(i / cols),
         active: isWithinQuantity,
       });
       if (isWithinQuantity) startBig++;
     }
   }
 
-  // Base dimensions of the preview sheet in px (aspect ratio 12:18 = 2:3)
+  // Base dimensions of the preview sheet in px (scaled to aspect ratio)
   const baseWidth = 440;
-  const baseHeight = (baseWidth * 18) / 12; // 660px
+  const baseHeight = (baseWidth * sheetHInches) / sheetWInches;
 
   const currentSelectedSerial = slots[selectedSlot]?.serial || startSerialNumber;
 
@@ -78,8 +87,8 @@ export default function SheetPreview({
         }}
       >
         <div style={{ fontSize: '13px', fontWeight: '600', color: '#334155', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span>12" × 18" Sheet Preview</span>
-          <span className="badge badge-primary">Page {pageNumber} (55 Labels)</span>
+          <span>{presetTitle} Preview</span>
+          <span className="badge badge-primary">Page {pageNumber} ({totalSlots} Labels)</span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -138,7 +147,7 @@ export default function SheetPreview({
             boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
             position: 'relative',
             border: '1px solid #cbd5e1',
-            padding: `${(baseHeight * zoom * 0.3) / 18}px ${(baseWidth * zoom * 0.4) / 12}px`, // 0.3" V, 0.4" H margins
+            padding: `${(baseHeight * zoom * marginVInches) / sheetHInches}px ${(baseWidth * zoom * marginHInches) / sheetWInches}px`,
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
@@ -158,15 +167,15 @@ export default function SheetPreview({
               letterSpacing: '0.4px',
             }}
           >
-            VIDHYUT SAATHI PRINT SHEET • 12" × 18" (55 LABELS)
+            VIDHYUT SAATHI PRINT SHEET • {presetTitle.toUpperCase()} ({totalSlots} LABELS)
           </div>
 
-          {/* 5 cols x 11 rows Grid */}
+          {/* Dynamic cols x rows Grid */}
           <div
             style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(5, 1fr)',
-              gridTemplateRows: 'repeat(11, 1fr)',
+              gridTemplateColumns: `repeat(${cols}, 1fr)`,
+              gridTemplateRows: `repeat(${rows}, 1fr)`,
               gap: `${2.8 * zoom}px ${4.5 * zoom}px`, // Gutters: ~2mm
               width: '100%',
               height: '100%',

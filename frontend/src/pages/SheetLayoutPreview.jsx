@@ -11,14 +11,17 @@ import {
 } from 'lucide-react';
 import SheetPreview from '../components/SheetPreview';
 import CardPreview from '../components/CardPreview';
+import { SHEET_PRESETS_OPTIONS } from './BarcodeGenerator';
 
 export default function SheetLayoutPreview() {
+  const [selectedPresetId, setSelectedPresetId] = useState('12x18_default');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedSerial, setSelectedSerial] = useState('0020231501');
   const [testStartSerial, setTestStartSerial] = useState('0020231501');
-  const [testQuantity, setTestQuantity] = useState(550); // 10 pages test
 
-  const totalPages = Math.ceil(testQuantity / 55);
+  const activePreset = SHEET_PRESETS_OPTIONS.find((p) => p.id === selectedPresetId) || SHEET_PRESETS_OPTIONS[0];
+  const testQuantity = activePreset.labelsPerSheet * 10;
+  const totalPages = Math.ceil(testQuantity / activePreset.labelsPerSheet);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -30,17 +33,48 @@ export default function SheetLayoutPreview() {
           justifyContent: 'space-between',
           alignItems: 'center',
           padding: '16px 22px',
+          flexWrap: 'wrap',
+          gap: '12px',
         }}
       >
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Grid size={20} color="#0066cc" />
-            <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>
-              Sheet Layout & Physical Dimensions Inspector
-            </h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Grid size={20} color="#0066cc" />
+              <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>
+                Sheet Layout & Physical Dimensions Inspector
+              </h2>
+            </div>
+            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>
+              Accurate physical print preview for {activePreset.name} with {activePreset.labelsPerSheet} labels ({activePreset.columns} cols × {activePreset.rows} rows).
+            </div>
           </div>
-          <div style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>
-            Accurate physical print preview for 12" × 18" sheets with 55 labels (5 cols × 11 rows) at 100% scale.
+
+          {/* Sheet Selector */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '12px', fontWeight: '700', color: '#475569' }}>Format:</span>
+            <select
+              className="form-select"
+              value={selectedPresetId}
+              onChange={(e) => {
+                setSelectedPresetId(e.target.value);
+                setCurrentPage(1);
+              }}
+              style={{
+                fontSize: '13px',
+                fontWeight: '700',
+                color: '#0066cc',
+                backgroundColor: '#eff6ff',
+                borderColor: '#93c5fd',
+                padding: '5px 10px',
+              }}
+            >
+              {SHEET_PRESETS_OPTIONS.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -77,37 +111,33 @@ export default function SheetLayoutPreview() {
           {/* Physical Specifications Table */}
           <div className="card">
             <h3 style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a', marginBottom: '12px' }}>
-              Physical Print Dimensions (Verified)
+              Physical Print Dimensions ({activePreset.name})
             </h3>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '6px', borderBottom: '1px solid #f1f5f9' }}>
                 <span style={{ color: '#64748b' }}>Sheet Dimensions:</span>
-                <strong>12" × 18" (864 × 1296 pt)</strong>
+                <strong>{activePreset.sheetWidthInches}" × {activePreset.sheetHeightInches}" ({Math.round(activePreset.sheetWidthInches * 72)} × {Math.round(activePreset.sheetHeightInches * 72)} pt)</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '6px', borderBottom: '1px solid #f1f5f9' }}>
                 <span style={{ color: '#64748b' }}>Individual Label Size:</span>
-                <strong>2" × 1.5" (144 × 108 pt)</strong>
+                <strong>{activePreset.labelWidthInches}" × {activePreset.labelHeightInches}" ({Math.round(activePreset.labelWidthInches * 72)} × {Math.round(activePreset.labelHeightInches * 72)} pt)</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '6px', borderBottom: '1px solid #f1f5f9' }}>
                 <span style={{ color: '#64748b' }}>Grid Matrix:</span>
-                <strong>5 Columns × 11 Rows (55 Labels)</strong>
+                <strong>{activePreset.columns} Columns × {activePreset.rows} Rows ({activePreset.labelsPerSheet} Labels)</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '6px', borderBottom: '1px solid #f1f5f9' }}>
                 <span style={{ color: '#64748b' }}>Horizontal Outer Margin:</span>
-                <strong>0.40" (28.8 pt / 10.16 mm)</strong>
+                <strong>{activePreset.marginHorizontalInches}" ({Number((activePreset.marginHorizontalInches * 72).toFixed(1))} pt)</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '6px', borderBottom: '1px solid #f1f5f9' }}>
                 <span style={{ color: '#64748b' }}>Vertical Outer Margin:</span>
-                <strong>0.30" (21.6 pt / 7.62 mm)</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '6px', borderBottom: '1px solid #f1f5f9' }}>
-                <span style={{ color: '#64748b' }}>Column Gutters:</span>
-                <strong>0.30" (21.6 pt / 7.62 mm)</strong>
+                <strong>{activePreset.marginVerticalInches}" ({Number((activePreset.marginVerticalInches * 72).toFixed(1))} pt)</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: '#64748b' }}>Row Gutters (Cutting):</span>
-                <strong style={{ color: '#0066cc' }}>6.48 pt (~2.28 mm)</strong>
+                <span style={{ color: '#64748b' }}>Labels per Page:</span>
+                <strong style={{ color: '#0066cc' }}>{activePreset.labelsPerSheet} Labels</strong>
               </div>
             </div>
           </div>
@@ -135,6 +165,7 @@ export default function SheetLayoutPreview() {
             cardSeries="VS"
             pageNumber={currentPage}
             onSelectLabel={(s) => setSelectedSerial(s)}
+            sheetPreset={activePreset}
           />
         </div>
       </div>

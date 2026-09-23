@@ -15,6 +15,7 @@ export const BatchesAPI = {
   getBatchById: (id) => api.get(`/batches/${id}`),
   deleteBatch: (id) => api.delete(`/batches/${id}`),
   getNextSerial: (cardSeries = 'VS') => api.get('/batches/next-serial', { params: { cardSeries } }),
+  getSheetPresets: () => api.get('/batches/sheet-presets'),
   getPdfDownloadUrl: (id) => `/api/batches/${id}/download`,
   getPdfPreviewUrl: (id) => `/api/batches/${id}/preview`,
 };

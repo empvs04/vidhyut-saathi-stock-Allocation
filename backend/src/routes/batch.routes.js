@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+  getSheetPresets,
   validateRange,
   validateImportedSerials,
   createBatch,
@@ -13,6 +14,7 @@ import {
 
 const router = express.Router();
 
+router.get('/sheet-presets', getSheetPresets);
 router.get('/next-serial', getNextSerial);
 router.post('/validate-range', validateRange);
 router.post('/validate-serials', validateImportedSerials);

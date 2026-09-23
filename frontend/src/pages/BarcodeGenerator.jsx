@@ -21,9 +21,83 @@ import { BatchesAPI, TemplatesAPI, RecordsAPI } from '../services/api';
 import SheetPreview from '../components/SheetPreview';
 import CardPreview from '../components/CardPreview';
 
+export const SHEET_PRESETS_OPTIONS = [
+  {
+    id: '12x18_default',
+    name: '12 × 18 inch (Default)',
+    label: '12 × 18 inch (Default) — 55 Labels',
+    sheetWidthInches: 12.0,
+    sheetHeightInches: 18.0,
+    labelWidthInches: 2.0,
+    labelHeightInches: 1.5,
+    columns: 5,
+    rows: 11,
+    labelsPerSheet: 55,
+    marginHorizontalInches: 0.4,
+    marginVerticalInches: 0.3,
+    badge: 'Commercial Press',
+    isCustom: false,
+  },
+  {
+    id: 'a4_2x1_5',
+    name: '1:- A4 — 2 × 1.5 inch labels',
+    label: '1:- A4 — 2 × 1.5 inch labels (21 Labels)',
+    sheetWidthInches: 8.27,
+    sheetHeightInches: 11.69,
+    labelWidthInches: 2.0,
+    labelHeightInches: 1.5,
+    columns: 3,
+    rows: 7,
+    labelsPerSheet: 21,
+    marginHorizontalInches: 0.45,
+    marginVerticalInches: 0.40,
+    badge: 'A4 Office Sheet',
+    isCustom: false,
+  },
+  {
+    id: '12x18_2x1_5',
+    name: '2:- 12 × 18 inch — 2 × 1.5 inch labels',
+    label: '2:- 12 × 18 inch — 2 × 1.5 inch labels (55 Labels)',
+    sheetWidthInches: 12.0,
+    sheetHeightInches: 18.0,
+    labelWidthInches: 2.0,
+    labelHeightInches: 1.5,
+    columns: 5,
+    rows: 11,
+    labelsPerSheet: 55,
+    marginHorizontalInches: 0.4,
+    marginVerticalInches: 0.3,
+    badge: '12×18 Sheet',
+    isCustom: false,
+  },
+  {
+    id: 'a3_custom',
+    name: '3:- A3 — Custom label layout',
+    label: '3:- A3 — Custom label layout (Configurable / Default 50 Labels)',
+    sheetWidthInches: 11.69,
+    sheetHeightInches: 16.54,
+    labelWidthInches: 2.0,
+    labelHeightInches: 1.5,
+    columns: 5,
+    rows: 10,
+    labelsPerSheet: 50,
+    marginHorizontalInches: 0.45,
+    marginVerticalInches: 0.40,
+    badge: 'A3 Custom Layout',
+    isCustom: true,
+  },
+];
+
 export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
   // Mode State: 'sequential' | 'excel' | 'single'
   const [inputMode, setInputMode] = useState('sequential');
+
+  // Sheet Size Presets State
+  const [selectedSheetPresetId, setSelectedSheetPresetId] = useState('12x18_default');
+  const [customCols, setCustomCols] = useState(5);
+  const [customRows, setCustomRows] = useState(10);
+  const [customLabelW, setCustomLabelW] = useState(2.0);
+  const [customLabelH, setCustomLabelH] = useState(1.5);
 
   // Form State (Sequential)
   const [batchName, setBatchName] = useState('Vidhyut Saathi Batch A');
@@ -52,9 +126,42 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
   const [excelError, setExcelError] = useState(null);
   const fileInputRef = useRef(null);
 
-  // Layout Settings (Top Bar)
+  // Layout Settings (Margins)
   const [marginH, setMarginH] = useState(0.4);
   const [marginV, setMarginV] = useState(0.3);
+
+  // Derived current layout preset
+  const basePreset = SHEET_PRESETS_OPTIONS.find((p) => p.id === selectedSheetPresetId) || SHEET_PRESETS_OPTIONS[0];
+  const currentPreset = {
+    ...basePreset,
+    columns: selectedSheetPresetId === 'a3_custom' ? (parseInt(customCols, 10) || 5) : basePreset.columns,
+    rows: selectedSheetPresetId === 'a3_custom' ? (parseInt(customRows, 10) || 10) : basePreset.rows,
+    labelWidthInches: selectedSheetPresetId === 'a3_custom' ? (parseFloat(customLabelW) || 2.0) : basePreset.labelWidthInches,
+    labelHeightInches: selectedSheetPresetId === 'a3_custom' ? (parseFloat(customLabelH) || 1.5) : basePreset.labelHeightInches,
+    labelsPerSheet:
+      selectedSheetPresetId === 'a3_custom'
+        ? (parseInt(customCols, 10) || 5) * (parseInt(customRows, 10) || 10)
+        : basePreset.labelsPerSheet,
+    marginHorizontalInches: parseFloat(marginH) || basePreset.marginHorizontalInches,
+    marginVerticalInches: parseFloat(marginV) || basePreset.marginVerticalInches,
+  };
+
+  const handleSheetPresetChange = (presetId) => {
+    setSelectedSheetPresetId(presetId);
+    const target = SHEET_PRESETS_OPTIONS.find((p) => p.id === presetId) || SHEET_PRESETS_OPTIONS[0];
+    setMarginH(target.marginHorizontalInches);
+    setMarginV(target.marginVerticalInches);
+    if (presetId === 'a3_custom') {
+      setCustomCols(5);
+      setCustomRows(10);
+      setCustomLabelW(2.0);
+      setCustomLabelH(1.5);
+    }
+    // Update default quantity if current is default sheet count
+    if (quantity === 55 || quantity === 21 || quantity === 50) {
+      setQuantity(target.labelsPerSheet);
+    }
+  };
 
   // Validation & Live Status State
   const [validating, setValidating] = useState(false);
@@ -126,6 +233,16 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
         startSerialNumber,
         quantity: parseInt(quantity, 10),
         cardSeries,
+        sheetSize: selectedSheetPresetId,
+        layoutConfig: {
+          preset: selectedSheetPresetId,
+          columns: currentPreset.columns,
+          rows: currentPreset.rows,
+          labelWidthInches: currentPreset.labelWidthInches,
+          labelHeightInches: currentPreset.labelHeightInches,
+          marginHorizontalInches: parseFloat(marginH),
+          marginVerticalInches: parseFloat(marginV),
+        },
       })
         .then((res) => {
           if (res.data.success) {
@@ -140,7 +257,7 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
     }, 400);
 
     return () => clearTimeout(timer);
-  }, [inputMode, startSerialNumber, quantity, cardSeries]);
+  }, [inputMode, startSerialNumber, quantity, cardSeries, selectedSheetPresetId, marginH, marginV, customCols, customRows, customLabelW, customLabelH]);
 
   // Pre-flight validate single serial when in single mode
   useEffect(() => {
@@ -347,6 +464,16 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
       const res = await BatchesAPI.validateSerials({
         serials: extracted,
         cardSeries,
+        sheetSize: selectedSheetPresetId,
+        layoutConfig: {
+          preset: selectedSheetPresetId,
+          columns: currentPreset.columns,
+          rows: currentPreset.rows,
+          labelWidthInches: currentPreset.labelWidthInches,
+          labelHeightInches: currentPreset.labelHeightInches,
+          marginHorizontalInches: parseFloat(marginH),
+          marginVerticalInches: parseFloat(marginV),
+        },
       });
       setValidating(false);
 
@@ -412,7 +539,13 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
         cardSeries,
         barcodeType,
         templateId,
+        sheetSize: selectedSheetPresetId,
         layoutConfig: {
+          preset: selectedSheetPresetId,
+          columns: currentPreset.columns,
+          rows: currentPreset.rows,
+          labelWidthInches: currentPreset.labelWidthInches,
+          labelHeightInches: currentPreset.labelHeightInches,
           marginHorizontalInches: parseFloat(marginH),
           marginVerticalInches: parseFloat(marginV),
         },
@@ -471,77 +604,201 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
 
   const calculatedPages =
     inputMode === 'excel'
-      ? Math.ceil((importedSerials.length || 0) / 55)
-      : Math.ceil(parseInt(quantity || 0, 10) / 55);
+      ? Math.ceil((importedSerials.length || 0) / currentPreset.labelsPerSheet)
+      : Math.ceil(parseInt(quantity || 0, 10) / currentPreset.labelsPerSheet);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-      {/* Top Layout Dimensions & Settings Bar */}
+      {/* Top Layout Dimensions & Sheet Size Selector Bar */}
       <div
         className="card"
         style={{
           padding: '14px 20px',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
+          gap: '12px',
           backgroundColor: '#ffffff',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Printer size={18} color="#0066cc" />
-            <span style={{ fontSize: '14px', fontWeight: '700', color: '#0f172a' }}>
-              Sheet: 12" × 18" (864 × 1296 pt)
-            </span>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '12px',
+          }}
+        >
+          {/* Sheet Selector Dropdown */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0066cc' }}>
+              <Printer size={18} />
+              <span style={{ fontSize: '13px', fontWeight: '800', color: '#0f172a' }}>
+                Sheet Size:
+              </span>
+            </div>
+            <select
+              className="form-select"
+              value={selectedSheetPresetId}
+              onChange={(e) => handleSheetPresetChange(e.target.value)}
+              style={{
+                fontWeight: '700',
+                color: '#0066cc',
+                borderColor: '#93c5fd',
+                backgroundColor: '#eff6ff',
+                padding: '6px 12px',
+                fontSize: '13px',
+                minWidth: '290px',
+              }}
+            >
+              {SHEET_PRESETS_OPTIONS.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <span className="badge badge-primary">{currentPreset.badge}</span>
           </div>
 
-          <div style={{ height: '18px', width: '1px', backgroundColor: '#e2e8f0' }} />
+          {/* Quick Metrics Breakdown */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <div style={{ fontSize: '12.5px', color: '#475569' }}>
+              Sheet: <strong style={{ color: '#0f172a' }}>{currentPreset.sheetWidthInches}" × {currentPreset.sheetHeightInches}"</strong> ({Math.round(currentPreset.sheetWidthInches * 72)} × {Math.round(currentPreset.sheetHeightInches * 72)} pt)
+            </div>
 
-          <div style={{ fontSize: '13px', color: '#475569' }}>
-            Label: <strong style={{ color: '#0f172a' }}>2" × 1.5"</strong> (144 × 108 pt)
-          </div>
+            <div style={{ height: '16px', width: '1px', backgroundColor: '#e2e8f0' }} />
 
-          <div style={{ height: '18px', width: '1px', backgroundColor: '#e2e8f0' }} />
+            <div style={{ fontSize: '12.5px', color: '#475569' }}>
+              Label: <strong style={{ color: '#0f172a' }}>{currentPreset.labelWidthInches}" × {currentPreset.labelHeightInches}"</strong> ({Math.round(currentPreset.labelWidthInches * 72)} × {Math.round(currentPreset.labelHeightInches * 72)} pt)
+            </div>
 
-          <div style={{ fontSize: '13px', color: '#475569' }}>
-            Grid: <strong style={{ color: '#0f172a' }}>5 cols × 11 rows</strong> = <strong style={{ color: '#0066cc' }}>55 Labels/Sheet</strong>
+            <div style={{ height: '16px', width: '1px', backgroundColor: '#e2e8f0' }} />
+
+            <div style={{ fontSize: '12.5px', color: '#475569' }}>
+              Grid: <strong style={{ color: '#0f172a' }}>{currentPreset.columns} cols × {currentPreset.rows} rows</strong> = <strong style={{ color: '#0066cc' }}>{currentPreset.labelsPerSheet} Labels/Sheet</strong>
+            </div>
+
+            <div style={{ height: '16px', width: '1px', backgroundColor: '#e2e8f0' }} />
+
+            {/* Margin Controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
+                <span style={{ color: '#64748b' }}>H-Margin:</span>
+                <input
+                  type="number"
+                  step="0.05"
+                  min="0.1"
+                  max="1.5"
+                  value={marginH}
+                  onChange={(e) => setMarginH(e.target.value)}
+                  className="form-input"
+                  style={{ width: '58px', padding: '3px 6px', fontSize: '12px', height: '26px' }}
+                />
+                <span style={{ color: '#94a3b8' }}>in</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
+                <span style={{ color: '#64748b' }}>V-Margin:</span>
+                <input
+                  type="number"
+                  step="0.05"
+                  min="0.1"
+                  max="1.5"
+                  value={marginV}
+                  onChange={(e) => setMarginV(e.target.value)}
+                  className="form-input"
+                  style={{ width: '58px', padding: '3px 6px', fontSize: '12px', height: '26px' }}
+                />
+                <span style={{ color: '#94a3b8' }}>in</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Margin Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px' }}>
-            <span style={{ color: '#64748b' }}>H-Margin:</span>
-            <input
-              type="number"
-              step="0.05"
-              min="0.1"
-              max="1.0"
-              value={marginH}
-              onChange={(e) => setMarginH(e.target.value)}
-              className="form-input"
-              style={{ width: '64px', padding: '4px 6px', fontSize: '12px' }}
-            />
-            <span style={{ color: '#94a3b8' }}>in</span>
-          </div>
+        {/* Custom Layout Bar for A3 Custom Option */}
+        {selectedSheetPresetId === 'a3_custom' && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '10px 14px',
+              backgroundColor: '#fffbeb',
+              border: '1px solid #fde68a',
+              borderRadius: '8px',
+              fontSize: '12.5px',
+              gap: '12px',
+              flexWrap: 'wrap',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#92400e', fontWeight: '700' }}>
+              <Sliders size={15} />
+              <span>A3 Custom Grid & Label Setup:</span>
+            </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px' }}>
-            <span style={{ color: '#64748b' }}>V-Margin:</span>
-            <input
-              type="number"
-              step="0.05"
-              min="0.1"
-              max="1.0"
-              value={marginV}
-              onChange={(e) => setMarginV(e.target.value)}
-              className="form-input"
-              style={{ width: '64px', padding: '4px 6px', fontSize: '12px' }}
-            />
-            <span style={{ color: '#94a3b8' }}>in</span>
-          </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ color: '#78350f' }}>Columns:</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="8"
+                  value={customCols}
+                  onChange={(e) => setCustomCols(e.target.value)}
+                  className="form-input"
+                  style={{ width: '52px', padding: '3px 6px', fontSize: '12px', height: '26px' }}
+                />
+              </div>
 
-          <span className="badge badge-primary">Gutters: ~2.2mm</span>
-        </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ color: '#78350f' }}>Rows:</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="15"
+                  value={customRows}
+                  onChange={(e) => setCustomRows(e.target.value)}
+                  className="form-input"
+                  style={{ width: '52px', padding: '3px 6px', fontSize: '12px', height: '26px' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ color: '#78350f' }}>Label Width:</span>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="1.0"
+                  max="6.0"
+                  value={customLabelW}
+                  onChange={(e) => setCustomLabelW(e.target.value)}
+                  className="form-input"
+                  style={{ width: '58px', padding: '3px 6px', fontSize: '12px', height: '26px' }}
+                />
+                <span style={{ color: '#92400e' }}>in</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ color: '#78350f' }}>Label Height:</span>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="1.0"
+                  max="5.0"
+                  value={customLabelH}
+                  onChange={(e) => setCustomLabelH(e.target.value)}
+                  className="form-input"
+                  style={{ width: '58px', padding: '3px 6px', fontSize: '12px', height: '26px' }}
+                />
+                <span style={{ color: '#92400e' }}>in</span>
+              </div>
+
+              <div style={{ fontWeight: '700', color: '#b45309' }}>
+                Yield: {currentPreset.labelsPerSheet} Labels / Sheet
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main Two-Column Layout */}
@@ -939,7 +1196,12 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                         Quantity (Labels)
                       </label>
                       <div style={{ display: 'flex', gap: '5px' }}>
-                        {[10, 55, 500, 5000].map((preset) => (
+                        {[
+                          currentPreset.labelsPerSheet,
+                          currentPreset.labelsPerSheet * 2,
+                          currentPreset.labelsPerSheet * 10,
+                          currentPreset.labelsPerSheet * 50,
+                        ].map((preset) => (
                           <button
                             key={preset}
                             type="button"
@@ -962,7 +1224,7 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                       onChange={(e) => setQuantity(e.target.value)}
                     />
                     <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '3px' }}>
-                      Will create <strong>{calculatedPages} PDF Page{calculatedPages > 1 ? 's' : ''}</strong> (55 labels/sheet).
+                      Will create <strong>{calculatedPages} PDF Page{calculatedPages > 1 ? 's' : ''}</strong> ({currentPreset.labelsPerSheet} labels/sheet • {currentPreset.name}).
                     </div>
                   </div>
                 </>
@@ -1228,7 +1490,7 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
               {generating && (
                 <div style={{ margin: '14px 0' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: '600', marginBottom: '6px' }}>
-                    <span>Rendering 12" × 18" PDF Sheets...</span>
+                    <span>Rendering {currentPreset.name} PDF Sheets...</span>
                     <span style={{ color: '#0066cc' }}>{progress}%</span>
                   </div>
                   <div className="progress-bar-container">
@@ -1271,8 +1533,8 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                 {generating
                   ? `Generating PDF (${progress}%)...`
                   : inputMode === 'excel'
-                  ? `Generate 12" × 18" PDF (${importedSerials.length} labels)`
-                  : 'Generate 12" × 18" PDF Batch'}
+                  ? `Generate ${currentPreset.name} PDF (${importedSerials.length} labels)`
+                  : `Generate ${currentPreset.name} PDF Batch`}
               </button>
             </form>
           )}
@@ -1390,7 +1652,7 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
             )}
           </div>
 
-          {/* Live 12" × 18" Sheet Preview (Shown in sequential & excel modes) */}
+          {/* Live Sheet Preview (Shown in sequential & excel modes) */}
           {inputMode !== 'single' ? (
             <div className="card">
               <SheetPreview
@@ -1411,6 +1673,7 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                     ? importedSerials
                     : null
                 }
+                sheetPreset={currentPreset}
               />
             </div>
           ) : (

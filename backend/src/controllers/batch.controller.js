@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 import { DataStore } from '../services/dataStore.js';
 import { generateSerialNumbers } from '../services/barcodeService.js';
 import { renderBatchPDF } from '../services/pdfRenderService.js';
-import { calculateLayout } from '../services/layoutEngine.js';
+import { calculateLayout, getSheetPresetsList } from '../services/layoutEngine.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,11 +13,29 @@ const __dirname = path.dirname(__filename);
 const activeJobs = new Map();
 
 /**
+ * Get available sheet size presets (12x18, A4, A3 custom, etc.)
+ */
+export function getSheetPresets(req, res) {
+  try {
+    const presets = getSheetPresetsList();
+    return res.status(200).json({
+      success: true,
+      presets,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+}
+
+/**
  * Pre-flight validation of serial number range against existing records
  */
 export async function validateRange(req, res) {
   try {
-    const { startSerialNumber, quantity, cardSeries = 'VS' } = req.body;
+    const { startSerialNumber, quantity, cardSeries = 'VS', layoutConfig, sheetSize } = req.body;
 
     if (!startSerialNumber || !quantity || Number(quantity) < 1) {
       return res.status(400).json({
@@ -77,7 +95,11 @@ export async function validateRange(req, res) {
       });
     }
 
-    const layout = calculateLayout();
+    const mergedLayoutConfig = {
+      ...(sheetSize ? { preset: sheetSize } : {}),
+      ...(layoutConfig || {}),
+    };
+    const layout = calculateLayout(mergedLayoutConfig);
     const totalPages = Math.ceil(count / layout.labelsPerSheet);
 
     return res.status(200).json({
@@ -88,6 +110,7 @@ export async function validateRange(req, res) {
       quantity: count,
       totalPages,
       labelsPerSheet: layout.labelsPerSheet,
+      layout,
     });
   } catch (err) {
     return res.status(400).json({
@@ -102,7 +125,7 @@ export async function validateRange(req, res) {
  */
 export async function validateImportedSerials(req, res) {
   try {
-    const { serials, cardSeries = 'VS' } = req.body;
+    const { serials, cardSeries = 'VS', layoutConfig, sheetSize } = req.body;
 
     if (!Array.isArray(serials) || serials.length === 0) {
       return res.status(400).json({
@@ -152,7 +175,11 @@ export async function validateImportedSerials(req, res) {
       });
     }
 
-    const layout = calculateLayout();
+    const mergedLayoutConfig = {
+      ...(sheetSize ? { preset: sheetSize } : {}),
+      ...(layoutConfig || {}),
+    };
+    const layout = calculateLayout(mergedLayoutConfig);
     const totalPages = Math.ceil(count / layout.labelsPerSheet);
 
     return res.status(200).json({
@@ -163,6 +190,7 @@ export async function validateImportedSerials(req, res) {
       endSerialNumber: cleanSerials[count - 1],
       totalPages,
       labelsPerSheet: layout.labelsPerSheet,
+      layout,
     });
   } catch (err) {
     return res.status(400).json({
@@ -186,6 +214,7 @@ export async function createBatch(req, res) {
       barcodeType = 'CODE128',
       templateId,
       layoutConfig,
+      sheetSize,
     } = req.body;
 
     if (!batchName) {
@@ -282,7 +311,11 @@ export async function createBatch(req, res) {
       }
     }
 
-    const layout = calculateLayout(layoutConfig);
+    const mergedLayoutConfig = {
+      ...(sheetSize ? { preset: sheetSize } : {}),
+      ...(layoutConfig || {}),
+    };
+    const layout = calculateLayout(mergedLayoutConfig);
     const totalPages = Math.ceil(count / layout.labelsPerSheet);
 
     // Create unique batch ID
@@ -306,6 +339,8 @@ export async function createBatch(req, res) {
       sheetHeight: layout.sheetHeight,
       labelWidth: layout.labelWidth,
       labelHeight: layout.labelHeight,
+      columns: layout.cols,
+      rows: layout.rows,
       labelsPerSheet: layout.labelsPerSheet,
       totalPages,
       pdfFilePath: `storage/pdfs/${pdfFileName}`,

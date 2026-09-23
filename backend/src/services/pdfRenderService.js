@@ -75,14 +75,15 @@ export async function renderBatchPDF({
         });
 
         // Optional page header for print operators (in top margin, discrete)
+        // Discrete header for print operators
         doc
           .font('Helvetica-Bold')
           .fontSize(6.5)
           .fillColor('#64748B')
           .text(
-            `VIDHYUT SAATHI ENERGY SAVERS PVT. LTD. | Batch: ${batchId} | Page ${pageNum} of ${totalPages} | 12" x 18" (55 Labels)`,
+            `VIDHYUT SAATHI ENERGY SAVERS PVT. LTD. | Batch: ${batchId} | Page ${pageNum} of ${totalPages} | ${layout.presetName || 'Print Sheet'} (${layout.labelsPerSheet} Labels)`,
             layout.leftMargin,
-            layout.topMargin - 12,
+            Math.max(4, layout.topMargin - 12),
             { lineBreak: false }
           );
 
@@ -94,7 +95,7 @@ export async function renderBatchPDF({
           const serial = pageLabels[i];
           const pos = layout.positions[i];
 
-          // 1. Draw Master Card Artwork (fills 144 pt x 108 pt = exact 2" x 1.5" box edge-to-edge)
+          // 1. Draw Master Card Artwork (fills pos.width x pos.height)
           doc.image(templateBuffer, pos.x, pos.y, {
             width: pos.width,
             height: pos.height,
@@ -110,12 +111,13 @@ export async function renderBatchPDF({
           });
 
           // 3. Draw Barcode inside the white barcode container
-          // Container top border is at pos.y + 63.85pt, bottom is at pos.y + 92.11pt (inner height 28.26pt)
-          // Layout: 7.65pt top gap | 10pt barcode | 1.55pt gap | ~6pt text | ~2.9pt bottom gap
-          const bcW = 96;
+          // Standard card: 144 pt x 108 pt. Scale proportionally if custom label dimensions are used.
+          const scaleX = pos.width / 144;
+          const scaleY = pos.height / 108;
+          const bcW = 96 * scaleX;
           const bcX = pos.x + (pos.width - bcW) / 2; // centered horizontally
-          const bcY = pos.y + 71.5; // ~7.65pt top breathing room below border
-          const bcH = 10.0; // taller barcode for premium look
+          const bcY = pos.y + 71.5 * scaleY; // scaled vertical position
+          const bcH = 10.0 * scaleY; // scaled height
 
           doc.image(barcodePng, bcX, bcY, {
             width: bcW,
@@ -124,15 +126,15 @@ export async function renderBatchPDF({
 
           // 4. Draw Human-Readable Serial Number below the barcode inside the same box
           // Font: Courier-Bold (monospace OCR-style), Black color
-          const textY = pos.y + 83.2;
+          const textY = pos.y + 83.2 * scaleY;
           doc
             .font('Courier-Bold')
-            .fontSize(5.8)
+            .fontSize(5.8 * Math.min(scaleX, scaleY))
             .fillColor('#000000')
             .text(serial, pos.x, textY, {
               width: pos.width,
               align: 'center',
-              characterSpacing: 0.5,
+              characterSpacing: 0.5 * scaleX,
             });
 
           processedCount++;
