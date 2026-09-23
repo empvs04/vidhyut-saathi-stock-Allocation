@@ -89,10 +89,10 @@ export default function CardPreview({
         <div
           style={{
             position: 'absolute',
-            top: '59.2%',
-            left: '4%',
-            width: '92%',
-            height: '26.0%',
+            top: '60.5%',
+            left: '3%',
+            width: '94%',
+            height: '29.5%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
