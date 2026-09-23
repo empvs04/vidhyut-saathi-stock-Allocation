@@ -206,8 +206,15 @@ export const DataStore = {
     // Remove from MongoDB
     if (this.isMongo()) {
       try {
-        await BarcodeBatch.deleteOne({ $or: [{ batchId: id }, { _id: id }] });
-        await BarcodeRecord.deleteMany({ $or: [{ batchId: batch._id }, { batchId: batch.batchId }] });
+        const isObjId = mongoose.Types.ObjectId.isValid(id);
+        const batchQuery = isObjId ? { $or: [{ _id: id }, { batchId: id }] } : { batchId: id };
+        await BarcodeBatch.deleteOne(batchQuery);
+
+        const recConditions = [{ batchId: batch.batchId }];
+        if (batch._id && mongoose.Types.ObjectId.isValid(batch._id)) {
+          recConditions.push({ batchId: batch._id });
+        }
+        await BarcodeRecord.deleteMany({ $or: recConditions });
       } catch (e) {
         console.warn('Mongo deleteBatch error:', e.message);
       }
@@ -244,6 +251,102 @@ export const DataStore = {
     const store = readStore();
     const set = new Set(serialsArray);
     return store.records.find((r) => set.has(r.serialNumber)) || null;
+  },
+
+  async getNextSerialNumber(cardSeries = 'VS') {
+    const MIN_START_SERIAL_STR = '0020231501';
+    const MIN_NUMERIC = 20231501n;
+    const DIGITS = 10;
+
+    let maxNumeric = null;
+    let lastEndSerial = null;
+
+    if (this.isMongo()) {
+      try {
+        const query = cardSeries ? { cardSeries } : {};
+        const [recentBatches, recentRecords, highestBatch, highestRecord] = await Promise.all([
+          BarcodeBatch.find(query).sort({ createdAt: -1 }).limit(100).lean(),
+          BarcodeRecord.find(query).sort({ createdAt: -1 }).limit(200).lean(),
+          BarcodeBatch.findOne(query).sort({ endSerialNumber: -1 }).lean(),
+          BarcodeRecord.findOne(query).sort({ serialNumber: -1 }).lean(),
+        ]);
+
+        const candidates = [];
+        if (highestBatch?.endSerialNumber) candidates.push(highestBatch.endSerialNumber);
+        if (highestBatch?.startSerialNumber) candidates.push(highestBatch.startSerialNumber);
+        if (highestRecord?.serialNumber) candidates.push(highestRecord.serialNumber);
+        
+        for (const b of recentBatches || []) {
+          if (b.endSerialNumber) candidates.push(b.endSerialNumber);
+          if (b.startSerialNumber) candidates.push(b.startSerialNumber);
+        }
+        for (const r of recentRecords || []) {
+          if (r.serialNumber) candidates.push(r.serialNumber);
+        }
+
+        for (const cand of candidates) {
+          const m = String(cand).trim().match(/\d+$/);
+          if (m) {
+            const val = BigInt(m[0]);
+            if (maxNumeric === null || val > maxNumeric) {
+              maxNumeric = val;
+              lastEndSerial = cand;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Mongo getNextSerialNumber fallback:', e.message);
+      }
+    }
+
+    // Also scan local store
+    const store = readStore();
+    for (const b of store.batches || []) {
+      if (!cardSeries || b.cardSeries === cardSeries) {
+        const target = b.endSerialNumber || b.startSerialNumber;
+        if (target) {
+          const m = String(target).trim().match(/\d+$/);
+          if (m) {
+            const val = BigInt(m[0]);
+            if (maxNumeric === null || val > maxNumeric) {
+              maxNumeric = val;
+              lastEndSerial = target;
+            }
+          }
+        }
+      }
+    }
+    for (const r of store.records || []) {
+      if (!cardSeries || r.cardSeries === cardSeries) {
+        if (r.serialNumber) {
+          const m = String(r.serialNumber).trim().match(/\d+$/);
+          if (m) {
+            const val = BigInt(m[0]);
+            if (maxNumeric === null || val > maxNumeric) {
+              maxNumeric = val;
+              lastEndSerial = r.serialNumber;
+            }
+          }
+        }
+      }
+    }
+
+    if (maxNumeric === null || maxNumeric < MIN_NUMERIC) {
+      return {
+        nextSerialNumber: MIN_START_SERIAL_STR,
+        minSerialNumber: MIN_START_SERIAL_STR,
+        lastEndSerialNumber: null,
+      };
+    }
+
+    const nextNumeric = maxNumeric + 1n;
+    const nextSerialNumber = nextNumeric.toString().padStart(DIGITS, '0');
+
+    return {
+      nextSerialNumber,
+      minSerialNumber: MIN_START_SERIAL_STR,
+      lastEndSerialNumber: lastEndSerial,
+    };
   },
 
   async insertRecords(recordsArray) {

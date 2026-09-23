@@ -151,10 +151,16 @@ export async function renderBatchPDF({
       doc.end();
 
       writeStream.on('finish', () => {
-        const stats = fs.statSync(outputPath);
+        let fileSize = 0;
+        try {
+          if (fs.existsSync(outputPath)) {
+            const stats = fs.statSync(outputPath);
+            fileSize = stats.size;
+          }
+        } catch (e) {}
         resolve({
           totalPages,
-          fileSize: stats.size,
+          fileSize,
           totalLabels,
           outputPath,
         });

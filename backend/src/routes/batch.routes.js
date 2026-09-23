@@ -8,10 +8,12 @@ import {
   downloadPdf,
   previewPdf,
   deleteBatch,
+  getNextSerial,
 } from '../controllers/batch.controller.js';
 
 const router = express.Router();
 
+router.get('/next-serial', getNextSerial);
 router.post('/validate-range', validateRange);
 router.post('/validate-serials', validateImportedSerials);
 router.post('/generate', createBatch);

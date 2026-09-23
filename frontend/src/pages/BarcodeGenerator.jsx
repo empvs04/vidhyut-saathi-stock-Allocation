@@ -67,7 +67,38 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
   const [currentBatch, setCurrentBatch] = useState(null);
   const [generationError, setGenerationError] = useState(null);
 
-  // Load templates on mount
+  // Minimum Series Constants
+  const MIN_START_SERIAL = '0020231501';
+  const MIN_START_NUMERIC = 20231501n;
+
+  // Check if serial is below 0020231501
+  const isSerialBelowMin = (serialStr) => {
+    if (!serialStr) return false;
+    const match = String(serialStr).trim().match(/^([A-Za-z_-]*)(\d+)$/);
+    if (!match) return false;
+    try {
+      return BigInt(match[2]) < MIN_START_NUMERIC;
+    } catch {
+      return false;
+    }
+  };
+
+  // Fetch next available serial number from MongoDB / database
+  const fetchNextSerial = async (series = cardSeries, updateSingle = false) => {
+    try {
+      const res = await BatchesAPI.getNextSerial(series);
+      if (res.data?.success && res.data.nextSerialNumber) {
+        setStartSerialNumber(res.data.nextSerialNumber);
+        if (updateSingle || singleSerial === '0020231501' || isSerialBelowMin(singleSerial)) {
+          setSingleSerial(res.data.nextSerialNumber);
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to fetch next serial from DB:', err.message);
+    }
+  };
+
+  // Load templates and fetch next serial on mount or series change
   useEffect(() => {
     TemplatesAPI.getTemplates()
       .then((res) => {
@@ -78,6 +109,10 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
       })
       .catch((err) => console.error(err));
   }, []);
+
+  useEffect(() => {
+    fetchNextSerial(cardSeries, false);
+  }, [cardSeries]);
 
   // Pre-flight validate sequential range when inputs change
   useEffect(() => {
@@ -141,8 +176,13 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
     if (match) {
       const prefix = match[1];
       const numStr = match[2];
-      const nextNum = (BigInt(numStr) + 1n).toString().padStart(numStr.length, '0');
-      setSingleSerial(`${prefix}${nextNum}`);
+      const curNum = BigInt(numStr);
+      const nextNum = curNum < MIN_START_NUMERIC ? MIN_START_NUMERIC : curNum + 1n;
+      const padded = nextNum.toString().padStart(Math.max(10, numStr.length), '0');
+      setSingleSerial(`${prefix}${padded}`);
+      setSingleRegistered(false);
+    } else {
+      setSingleSerial(MIN_START_SERIAL);
       setSingleRegistered(false);
     }
   };
@@ -405,6 +445,7 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
               setProgress(100);
               setCurrentBatch(updatedBatch);
               if (onBatchCompleted) onBatchCompleted(updatedBatch);
+              fetchNextSerial(cardSeries, true);
             } else if (liveProg.status === 'failed') {
               clearInterval(pollInterval);
               setGenerating(false);
@@ -416,6 +457,7 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
             setProgress(100);
             setCurrentBatch(updatedBatch);
             if (onBatchCompleted) onBatchCompleted(updatedBatch);
+            fetchNextSerial(cardSeries, true);
           }
         } catch (pollErr) {
           console.error('Error polling batch status:', pollErr);
@@ -628,17 +670,30 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                     <label className="form-label" style={{ margin: 0 }}>
                       Serial Number
-                      <span style={{ fontSize: '11px', color: '#0066cc', fontWeight: '700' }}>Preserves 0s</span>
+                      <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: '700', marginLeft: '6px', backgroundColor: '#dcfce7', padding: '1px 6px', borderRadius: '4px' }}>
+                        Min: 0020231501
+                      </span>
                     </label>
-                    <button
-                      type="button"
-                      onClick={handleIncrementSingleSerial}
-                      className="btn btn-secondary"
-                      style={{ padding: '2px 8px', fontSize: '11px', minHeight: '22px' }}
-                      title="Generate Next Serial (+1)"
-                    >
-                      +1 Next
-                    </button>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button
+                        type="button"
+                        onClick={() => fetchNextSerial(cardSeries, true)}
+                        className="btn btn-secondary"
+                        style={{ padding: '2px 8px', fontSize: '11px', minHeight: '22px', color: '#0066cc' }}
+                        title="Fetch next available serial from DB"
+                      >
+                        ↻ Sync DB
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleIncrementSingleSerial}
+                        className="btn btn-secondary"
+                        style={{ padding: '2px 8px', fontSize: '11px', minHeight: '22px' }}
+                        title="Generate Next Serial (+1)"
+                      >
+                        +1 Next
+                      </button>
+                    </div>
                   </div>
                   <input
                     type="text"
@@ -650,7 +705,13 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                       setSingleRegistered(false);
                     }}
                     placeholder="0020231501"
+                    style={isSerialBelowMin(singleSerial) ? { borderColor: '#ef4444', backgroundColor: '#fef2f2' } : {}}
                   />
+                  {isSerialBelowMin(singleSerial) && (
+                    <div style={{ color: '#dc2626', fontSize: '11.5px', marginTop: '4px', fontWeight: '600' }}>
+                      ⚠️ Series 0020231501 se start hoti hai. Isse kam number allowed nahi hai.
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -735,6 +796,7 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                 <button
                   type="button"
                   onClick={handlePrintSingleLabel}
+                  disabled={!singleSerial || isSerialBelowMin(singleSerial)}
                   className="btn btn-primary"
                   style={{ padding: '12px', fontSize: '14.5px', width: '100%' }}
                 >
@@ -744,8 +806,11 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                   <a
-                    href={RecordsAPI.getSingleLabelPdfUrl(singleSerial.trim(), cardSeries)}
-                    className="btn btn-secondary"
+                    href={isSerialBelowMin(singleSerial) ? '#' : RecordsAPI.getSingleLabelPdfUrl(singleSerial.trim(), cardSeries)}
+                    onClick={(e) => {
+                      if (isSerialBelowMin(singleSerial)) e.preventDefault();
+                    }}
+                    className={`btn btn-secondary ${isSerialBelowMin(singleSerial) ? 'disabled' : ''}`}
                     style={{
                       padding: '10px',
                       fontSize: '13px',
@@ -754,6 +819,8 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '6px',
+                      opacity: isSerialBelowMin(singleSerial) ? 0.5 : 1,
+                      pointerEvents: isSerialBelowMin(singleSerial) ? 'none' : 'auto',
                     }}
                     download
                   >
@@ -764,7 +831,7 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                   <button
                     type="button"
                     onClick={handleRegisterSingleLabel}
-                    disabled={registeringSingle || singleRegistered}
+                    disabled={registeringSingle || singleRegistered || isSerialBelowMin(singleSerial)}
                     className="btn btn-secondary"
                     style={{
                       padding: '10px',
@@ -831,10 +898,23 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                     </div>
 
                     <div className="form-group" style={{ minWidth: 0 }}>
-                      <label className="form-label">
-                        Starting Serial Number
-                        <span style={{ fontSize: '11px', color: '#0066cc', fontWeight: '700' }}>Preserves 0s</span>
-                      </label>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                        <label className="form-label" style={{ margin: 0 }}>
+                          Starting Serial Number
+                          <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: '700', marginLeft: '6px', backgroundColor: '#dcfce7', padding: '1px 6px', borderRadius: '4px' }}>
+                            Min: 0020231501
+                          </span>
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => fetchNextSerial(cardSeries, false)}
+                          className="btn btn-secondary"
+                          style={{ padding: '2px 8px', fontSize: '11px', minHeight: '22px', color: '#0066cc' }}
+                          title="Fetch next available serial from database"
+                        >
+                          ↻ Auto Next
+                        </button>
+                      </div>
                       <input
                         type="text"
                         className="form-input font-mono"
@@ -842,7 +922,13 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                         value={startSerialNumber}
                         onChange={(e) => setStartSerialNumber(e.target.value.trim())}
                         placeholder="0020231501"
+                        style={isSerialBelowMin(startSerialNumber) ? { borderColor: '#ef4444', backgroundColor: '#fef2f2' } : {}}
                       />
+                      {isSerialBelowMin(startSerialNumber) && (
+                        <div style={{ color: '#dc2626', fontSize: '11.5px', marginTop: '4px', fontWeight: '600' }}>
+                          ⚠️ Series 0020231501 se start hoti hai. Isse kam number allowed nahi hai.
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -1177,6 +1263,7 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                   generating ||
                   !!validationError ||
                   !batchName ||
+                  (inputMode === 'sequential' && isSerialBelowMin(startSerialNumber)) ||
                   (inputMode === 'excel' && importedSerials.length === 0)
                 }
               >

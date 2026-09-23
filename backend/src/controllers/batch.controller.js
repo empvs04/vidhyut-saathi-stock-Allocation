@@ -27,6 +27,26 @@ export async function validateRange(req, res) {
     }
 
     const count = parseInt(quantity, 10);
+
+    const MIN_START_SERIAL_NUMERIC = 20231501n;
+    const MIN_START_SERIAL_STR = '0020231501';
+
+    const match = String(startSerialNumber).trim().match(/^([A-Za-z_-]*)(\d+)$/);
+    if (!match) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid starting serial number format. Must end with digits (e.g. 0020231501).',
+      });
+    }
+
+    const numericVal = BigInt(match[2]);
+    if (numericVal < MIN_START_SERIAL_NUMERIC) {
+      return res.status(400).json({
+        success: false,
+        message: `Starting serial number cannot be less than ${MIN_START_SERIAL_STR}. Minimum series starts at ${MIN_START_SERIAL_STR}.`,
+      });
+    }
+
     const serials = generateSerialNumbers(startSerialNumber, count, cardSeries);
     const endSerialNumber = serials[serials.length - 1];
 
@@ -229,6 +249,25 @@ export async function createBatch(req, res) {
         });
       }
 
+      const MIN_START_SERIAL_NUMERIC = 20231501n;
+      const MIN_START_SERIAL_STR = '0020231501';
+
+      const match = String(startSerialNumber).trim().match(/^([A-Za-z_-]*)(\d+)$/);
+      if (!match) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid starting serial number format. Must end with digits (e.g. 0020231501).',
+        });
+      }
+
+      const numericVal = BigInt(match[2]);
+      if (numericVal < MIN_START_SERIAL_NUMERIC) {
+        return res.status(400).json({
+          success: false,
+          message: `Starting serial number cannot be less than ${MIN_START_SERIAL_STR}. Minimum series starts at ${MIN_START_SERIAL_STR}.`,
+        });
+      }
+
       serials = generateSerialNumbers(startSerialNumber, count, cardSeries);
       startSerial = serials[0];
       endSerial = serials[serials.length - 1];
@@ -284,10 +323,18 @@ export async function createBatch(req, res) {
       totalPages,
     });
 
+    let nextCalculatedSerial = null;
+    const endM = String(endSerial).trim().match(/^([A-Za-z_-]*)(\d+)$/);
+    if (endM) {
+      const nextNum = BigInt(endM[2]) + 1n;
+      nextCalculatedSerial = `${endM[1]}${nextNum.toString().padStart(endM[2].length, '0')}`;
+    }
+
     // Respond immediately with batch info
     res.status(202).json({
       success: true,
       message: 'Batch generation started.',
+      nextSerialNumber: nextCalculatedSerial,
       batch: {
         _id: batch._id,
         batchId: batch.batchId,
@@ -526,3 +573,24 @@ export async function deleteBatch(req, res) {
     });
   }
 }
+
+/**
+ * Get next available sequential serial number
+ */
+export async function getNextSerial(req, res) {
+  try {
+    const { cardSeries = 'VS' } = req.query;
+    const result = await DataStore.getNextSerialNumber(cardSeries);
+    return res.status(200).json({
+      success: true,
+      ...result,
+      cardSeries,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+}
+

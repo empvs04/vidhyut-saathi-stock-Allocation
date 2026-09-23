@@ -145,6 +145,25 @@ export async function registerSingleLabel(req, res) {
 
     const cleanSerial = String(serialNumber).trim();
 
+    const MIN_START_SERIAL_NUMERIC = 20231501n;
+    const MIN_START_SERIAL_STR = '0020231501';
+
+    const match = cleanSerial.match(/^([A-Za-z_-]*)(\d+)$/);
+    if (!match) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid serial number format. Must end with digits (e.g. 0020231501).',
+      });
+    }
+
+    const numericVal = BigInt(match[2]);
+    if (numericVal < MIN_START_SERIAL_NUMERIC) {
+      return res.status(400).json({
+        success: false,
+        message: `Serial number cannot be less than ${MIN_START_SERIAL_STR}. Minimum series starts at ${MIN_START_SERIAL_STR}.`,
+      });
+    }
+
     // Check collision
     const existing = await DataStore.findRecordBySerial(cleanSerial);
     if (existing) {
