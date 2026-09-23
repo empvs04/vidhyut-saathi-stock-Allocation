@@ -43,8 +43,8 @@ const barcodeBatchSchema = new mongoose.Schema(
       enum: ['CODE128', 'CODE39', 'EAN13', 'QR'],
     },
     templateId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'LabelTemplate',
+      type: String,
+      default: null,
     },
     sheetWidth: {
       type: Number,

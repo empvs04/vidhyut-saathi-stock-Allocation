@@ -96,9 +96,9 @@ export default function CardPreview({
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
+            justifyContent: 'flex-start',
+            paddingTop: '6px',
             gap: '3px',
-            padding: '2px 0',
             pointerEvents: 'none',
           }}
         >
@@ -106,8 +106,8 @@ export default function CardPreview({
           <svg
             viewBox={`0 0 ${pattern.totalWidth} 40`}
             style={{
-              width: '75%',
-              height: '42%',
+              width: '68%',
+              height: '36%',
               shapeRendering: 'crispEdges',
             }}
           >
@@ -126,7 +126,7 @@ export default function CardPreview({
           {/* Human Readable Serial Number below barcode inside the same box */}
           <div
             style={{
-              fontSize: `${Math.max(8.5, width * 0.029)}px`,
+              fontSize: `${Math.max(8.5, width * 0.028)}px`,
               fontWeight: '800',
               fontFamily: "'JetBrains Mono', monospace",
               color: '#000000',

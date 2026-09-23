@@ -103,18 +103,18 @@ export async function renderBatchPDF({
           // 2. Generate crisp Code 128 Barcode for this serial
           const barcodePng = await generateBarcodeBuffer(serial, {
             scale: 3,
-            height: 10,
+            height: 8,
             includetext: false,
-            paddingwidth: 2,
+            paddingwidth: 0,
             paddingheight: 0,
           });
 
           // 3. Draw Barcode inside the white barcode container
           // Container top border is at pos.y + 63.85pt, bottom is at pos.y + 92.11pt (inner height 28.26pt)
-          const bcW = 102;
+          const bcW = 96;
           const bcX = pos.x + (pos.width - bcW) / 2; // centered horizontally
-          const bcY = pos.y + 66.8; // clean ~3.0pt top space below border at 63.85pt
-          const bcH = 10.0; // compact sharp barcode height
+          const bcY = pos.y + 67.2; // clean ~3.35pt top space below border
+          const bcH = 9.0; // compact sharp barcode height
 
           doc.image(barcodePng, bcX, bcY, {
             width: bcW,
@@ -122,15 +122,15 @@ export async function renderBatchPDF({
           });
 
           // 4. Draw Human-Readable Serial Number below the barcode inside the same box
-          const textY = pos.y + 78.2;
+          const textY = pos.y + 77.3;
           doc
             .font('Helvetica-Bold')
-            .fontSize(6.2)
+            .fontSize(5.8)
             .fillColor('#000000')
             .text(serial, pos.x, textY, {
               width: pos.width,
               align: 'center',
-              characterSpacing: 0.8,
+              characterSpacing: 0.6,
             });
 
           processedCount++;
@@ -207,15 +207,17 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = 'VS') {
   // 2. Generate crisp Code 128 barcode
   const barcodePng = await generateBarcodeBuffer(serialNumber, {
     scale: 3,
-    height: 9,
+    height: 8,
     includetext: false,
+    paddingwidth: 0,
+    paddingheight: 0,
   });
 
   // 3. Draw barcode inside the white box with breathing room
-  const barcodeWidth = 102;
-  const barcodeHeight = 10.0;
+  const barcodeWidth = 96;
+  const barcodeHeight = 9.0;
   const barcodeX = (144 - barcodeWidth) / 2;
-  const barcodeY = 66.8;
+  const barcodeY = 67.2;
 
   doc.image(barcodePng, barcodeX, barcodeY, {
     width: barcodeWidth,
@@ -223,15 +225,15 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = 'VS') {
   });
 
   // 4. Draw serial number text cleanly inside the box
-  const textY = 78.2;
+  const textY = 77.3;
   doc
     .font('Helvetica-Bold')
-    .fontSize(6.2)
+    .fontSize(5.8)
     .fillColor('#000000')
     .text(serialNumber, 0, textY, {
       width: 144,
       align: 'center',
-      characterSpacing: 0.8,
+      characterSpacing: 0.6,
     });
 
   doc.end();

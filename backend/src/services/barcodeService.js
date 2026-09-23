@@ -19,8 +19,8 @@ export async function generateBarcodeBuffer(text, options = {}) {
     includetext = false,// we render high-precision vector text directly in PDFKit
     textxalign = 'center',
     backgroundcolor = 'ffffff',
-    paddingwidth = 5,
-    paddingheight = 2,
+    paddingwidth = 0,
+    paddingheight = 0,
   } = options;
 
   return new Promise((resolve, reject) => {
