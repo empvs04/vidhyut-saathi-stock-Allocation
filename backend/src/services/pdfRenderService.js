@@ -123,15 +123,18 @@ export async function renderBatchPDF({
           });
 
           // 4. Draw Human-Readable Serial Number below the barcode inside the same box
+          // Format: "VS" + serial (matching reference label style)
+          // Font: Courier-Bold (monospace OCR-style), Dark Blue color
           const textY = pos.y + 83.2;
+          const displaySerial = `VS${serial}`;
           doc
-            .font('Helvetica-Bold')
-            .fontSize(6.0)
-            .fillColor('#000000')
-            .text(serial, pos.x, textY, {
+            .font('Courier-Bold')
+            .fontSize(5.8)
+            .fillColor('#0033CC')
+            .text(displaySerial, pos.x, textY, {
               width: pos.width,
               align: 'center',
-              characterSpacing: 0.7,
+              characterSpacing: 0.5,
             });
 
           processedCount++;
@@ -227,15 +230,18 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = 'VS') {
   });
 
   // 4. Draw serial number text cleanly inside the box
+  // Format: "VS" + serial (matching reference label style)
+  // Font: Courier-Bold (monospace OCR-style), Dark Blue color
   const textY = 83.2;
+  const displaySerial = `VS${serialNumber}`;
   doc
-    .font('Helvetica-Bold')
-    .fontSize(6.0)
-    .fillColor('#000000')
-    .text(serialNumber, 0, textY, {
+    .font('Courier-Bold')
+    .fontSize(5.8)
+    .fillColor('#0033CC')
+    .text(displaySerial, 0, textY, {
       width: 144,
       align: 'center',
-      characterSpacing: 0.7,
+      characterSpacing: 0.5,
     });
 
   doc.end();

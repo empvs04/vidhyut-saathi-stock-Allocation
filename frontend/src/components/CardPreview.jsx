@@ -127,15 +127,15 @@ export default function CardPreview({
           <div
             style={{
               fontSize: `${Math.max(8.5, width * 0.028)}px`,
-              fontWeight: '800',
-              fontFamily: "'JetBrains Mono', monospace",
-              color: '#000000',
-              letterSpacing: '0.8px',
+              fontWeight: '700',
+              fontFamily: "'Courier New', 'Courier', monospace",
+              color: '#0033CC',
+              letterSpacing: '0.6px',
               lineHeight: '1',
               textAlign: 'center',
             }}
           >
-            {serialNumber}
+            VS{serialNumber}
           </div>
         </div>
 
