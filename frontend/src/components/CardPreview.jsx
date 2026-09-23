@@ -86,20 +86,19 @@ export default function CardPreview({
         />
 
         {/* Dynamic Barcode Overlay in Designated Area */}
-        {/* Edge-to-edge barcode box is at top: 60.5%, height: 27.5% */}
         <div
           style={{
             position: 'absolute',
-            top: '60.5%',
+            top: '59.2%',
             left: '4%',
             width: '92%',
-            height: '27.5%',
+            height: '26.0%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'flex-start',
-            paddingTop: '10px', // Creates top space above barcode inside the box
-            paddingBottom: '2px',
+            justifyContent: 'center',
+            paddingTop: '6px',
+            paddingBottom: '3px',
             pointerEvents: 'none',
           }}
         >
@@ -107,8 +106,8 @@ export default function CardPreview({
           <svg
             viewBox={`0 0 ${pattern.totalWidth} 40`}
             style={{
-              width: '84%',
-              height: '54%',
+              width: '82%',
+              height: '48%',
               shapeRendering: 'crispEdges',
             }}
           >
@@ -127,12 +126,13 @@ export default function CardPreview({
           {/* Human Readable Serial Number below barcode inside the same box */}
           <div
             style={{
-              fontSize: `${Math.max(10, width * 0.038)}px`,
+              fontSize: `${Math.max(9.5, width * 0.034)}px`,
               fontWeight: '800',
               fontFamily: "'JetBrains Mono', monospace",
               color: '#000000',
-              letterSpacing: '1.2px',
-              marginTop: '4px',
+              letterSpacing: '1.0px',
+              marginTop: '3px',
+              lineHeight: '1.1',
               textAlign: 'center',
             }}
           >

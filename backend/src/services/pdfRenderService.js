@@ -109,13 +109,12 @@ export async function renderBatchPDF({
             paddingheight: 0,
           });
 
-          // 3. Draw Barcode pushed down inside the white box
-          // Edge-to-edge box: top border is at pos.y + 65.1pt, bottom is at pos.y + 98.4pt (height 33.3pt)
-          // Top space above barcode: ~6.4pt
-          const bcW = 112;
+          // 3. Draw Barcode inside the white barcode container
+          // Container top border is at pos.y + 63.85pt, bottom is at pos.y + 92.11pt (inner height 28.26pt)
+          const bcW = 106;
           const bcX = pos.x + (pos.width - bcW) / 2; // centered horizontally
-          const bcY = pos.y + 71.5; // pushed down nicely inside the box
-          const bcH = 14.0; // compact sharp barcode height
+          const bcY = pos.y + 67.5; // ~3.65pt breathing space below top border
+          const bcH = 12.0; // compact sharp barcode height
 
           doc.image(barcodePng, bcX, bcY, {
             width: bcW,
@@ -126,12 +125,12 @@ export async function renderBatchPDF({
           const textY = bcY + bcH + 1.8;
           doc
             .font('Helvetica-Bold')
-            .fontSize(7.2)
+            .fontSize(6.5)
             .fillColor('#000000')
             .text(serial, pos.x, textY, {
               width: pos.width,
               align: 'center',
-              characterSpacing: 1.0,
+              characterSpacing: 0.8,
             });
 
           processedCount++;
@@ -213,10 +212,10 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = 'VS') {
   });
 
   // 3. Draw barcode inside the white box with breathing room
-  const barcodeWidth = 108;
-  const barcodeHeight = 13.5;
+  const barcodeWidth = 106;
+  const barcodeHeight = 12.0;
   const barcodeX = (144 - barcodeWidth) / 2;
-  const barcodeY = 71.5;
+  const barcodeY = 67.5;
 
   doc.image(barcodePng, barcodeX, barcodeY, {
     width: barcodeWidth,
@@ -224,14 +223,15 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = 'VS') {
   });
 
   // 4. Draw serial number text
+  const textY = barcodeY + barcodeHeight + 1.8;
   doc
     .font('Helvetica-Bold')
     .fontSize(6.5)
     .fillColor('#000000')
-    .text(serialNumber, 0, 87.3, {
+    .text(serialNumber, 0, textY, {
       width: 144,
       align: 'center',
-      characterSpacing: 1.0,
+      characterSpacing: 0.8,
     });
 
   doc.end();
