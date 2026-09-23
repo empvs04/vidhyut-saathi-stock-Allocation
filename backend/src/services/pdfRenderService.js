@@ -111,10 +111,11 @@ export async function renderBatchPDF({
 
           // 3. Draw Barcode inside the white barcode container
           // Container top border is at pos.y + 63.85pt, bottom is at pos.y + 92.11pt (inner height 28.26pt)
+          // Layout: 7.65pt top gap | 10pt barcode | 1.55pt gap | ~6pt text | ~2.9pt bottom gap
           const bcW = 96;
           const bcX = pos.x + (pos.width - bcW) / 2; // centered horizontally
-          const bcY = pos.y + 69.6; // generous ~5.75pt top space below border
-          const bcH = 9.0; // compact sharp barcode height
+          const bcY = pos.y + 71.5; // ~7.65pt top breathing room below border
+          const bcH = 10.0; // taller barcode for premium look
 
           doc.image(barcodePng, bcX, bcY, {
             width: bcW,
@@ -122,15 +123,15 @@ export async function renderBatchPDF({
           });
 
           // 4. Draw Human-Readable Serial Number below the barcode inside the same box
-          const textY = pos.y + 79.8;
+          const textY = pos.y + 83.2;
           doc
             .font('Helvetica-Bold')
-            .fontSize(5.8)
+            .fontSize(6.0)
             .fillColor('#000000')
             .text(serial, pos.x, textY, {
               width: pos.width,
               align: 'center',
-              characterSpacing: 0.6,
+              characterSpacing: 0.7,
             });
 
           processedCount++;
@@ -214,10 +215,11 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = 'VS') {
   });
 
   // 3. Draw barcode inside the white box with generous top breathing room
+  // Layout: 7.65pt top gap | 10pt barcode | 1.55pt gap | ~6pt text | ~2.9pt bottom gap
   const barcodeWidth = 96;
-  const barcodeHeight = 9.0;
+  const barcodeHeight = 10.0;
   const barcodeX = (144 - barcodeWidth) / 2;
-  const barcodeY = 69.6;
+  const barcodeY = 71.5; // ~7.65pt below box top border (63.85pt)
 
   doc.image(barcodePng, barcodeX, barcodeY, {
     width: barcodeWidth,
@@ -225,15 +227,15 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = 'VS') {
   });
 
   // 4. Draw serial number text cleanly inside the box
-  const textY = 79.8;
+  const textY = 83.2;
   doc
     .font('Helvetica-Bold')
-    .fontSize(5.8)
+    .fontSize(6.0)
     .fillColor('#000000')
     .text(serialNumber, 0, textY, {
       width: 144,
       align: 'center',
-      characterSpacing: 0.6,
+      characterSpacing: 0.7,
     });
 
   doc.end();
