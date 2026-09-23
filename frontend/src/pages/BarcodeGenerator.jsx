@@ -663,32 +663,50 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                     value={cardSeries}
                     onChange={(e) => setCardSeries(e.target.value.toUpperCase())}
                     placeholder="VS"
+                    style={{ textAlign: 'center', fontWeight: '700' }}
                   />
+                  <div style={{ marginTop: '4px', fontSize: '11px', color: '#64748b', textAlign: 'center' }}>
+                    Prefix
+                  </div>
                 </div>
 
                 <div className="form-group" style={{ minWidth: 0, margin: 0 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <label className="form-label" style={{ margin: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                    <label className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>
                       Serial Number
-                      <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: '700', marginLeft: '6px', backgroundColor: '#dcfce7', padding: '1px 6px', borderRadius: '4px' }}>
-                        Min: 0020231501
-                      </span>
                     </label>
                     <div style={{ display: 'flex', gap: '4px' }}>
                       <button
                         type="button"
                         onClick={() => fetchNextSerial(cardSeries, true)}
                         className="btn btn-secondary"
-                        style={{ padding: '2px 8px', fontSize: '11px', minHeight: '22px', color: '#0066cc' }}
+                        style={{
+                          padding: '2px 7px',
+                          fontSize: '11px',
+                          minHeight: '22px',
+                          color: '#0066cc',
+                          whiteSpace: 'nowrap',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '3px',
+                        }}
                         title="Fetch next available serial from DB"
                       >
-                        ↻ Sync DB
+                        <RefreshCw size={11} /> Sync DB
                       </button>
                       <button
                         type="button"
                         onClick={handleIncrementSingleSerial}
                         className="btn btn-secondary"
-                        style={{ padding: '2px 8px', fontSize: '11px', minHeight: '22px' }}
+                        style={{
+                          padding: '2px 7px',
+                          fontSize: '11px',
+                          minHeight: '22px',
+                          whiteSpace: 'nowrap',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '3px',
+                        }}
                         title="Generate Next Serial (+1)"
                       >
                         +1 Next
@@ -707,6 +725,12 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                     placeholder="0020231501"
                     style={isSerialBelowMin(singleSerial) ? { borderColor: '#ef4444', backgroundColor: '#fef2f2' } : {}}
                   />
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', fontSize: '11px', color: '#64748b' }}>
+                    <span>
+                      Min Start: <strong style={{ color: '#16a34a', fontFamily: 'monospace' }}>0020231501</strong>
+                    </span>
+                    <span style={{ color: '#0066cc', fontWeight: '600' }}>Preserves 0s</span>
+                  </div>
                   {isSerialBelowMin(singleSerial) && (
                     <div style={{ color: '#dc2626', fontSize: '11.5px', marginTop: '4px', fontWeight: '600' }}>
                       ⚠️ Series 0020231501 se start hoti hai. Isse kam number allowed nahi hai.
@@ -894,25 +918,35 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                         value={cardSeries}
                         onChange={(e) => setCardSeries(e.target.value.toUpperCase())}
                         placeholder="VS"
+                        style={{ textAlign: 'center', fontWeight: '700' }}
                       />
+                      <div style={{ marginTop: '4px', fontSize: '11px', color: '#64748b', textAlign: 'center' }}>
+                        Prefix
+                      </div>
                     </div>
 
                     <div className="form-group" style={{ minWidth: 0 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                        <label className="form-label" style={{ margin: 0 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                        <label className="form-label" style={{ margin: 0, whiteSpace: 'nowrap' }}>
                           Starting Serial Number
-                          <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: '700', marginLeft: '6px', backgroundColor: '#dcfce7', padding: '1px 6px', borderRadius: '4px' }}>
-                            Min: 0020231501
-                          </span>
                         </label>
                         <button
                           type="button"
                           onClick={() => fetchNextSerial(cardSeries, false)}
                           className="btn btn-secondary"
-                          style={{ padding: '2px 8px', fontSize: '11px', minHeight: '22px', color: '#0066cc' }}
+                          style={{
+                            padding: '2px 7px',
+                            fontSize: '11px',
+                            minHeight: '22px',
+                            color: '#0066cc',
+                            whiteSpace: 'nowrap',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '3px',
+                          }}
                           title="Fetch next available serial from database"
                         >
-                          ↻ Auto Next
+                          <RefreshCw size={11} /> Auto Next
                         </button>
                       </div>
                       <input
@@ -924,6 +958,12 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                         placeholder="0020231501"
                         style={isSerialBelowMin(startSerialNumber) ? { borderColor: '#ef4444', backgroundColor: '#fef2f2' } : {}}
                       />
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', fontSize: '11px', color: '#64748b' }}>
+                        <span>
+                          Min Start: <strong style={{ color: '#16a34a', fontFamily: 'monospace' }}>0020231501</strong>
+                        </span>
+                        <span style={{ color: '#0066cc', fontWeight: '600' }}>Preserves 0s</span>
+                      </div>
                       {isSerialBelowMin(startSerialNumber) && (
                         <div style={{ color: '#dc2626', fontSize: '11.5px', marginTop: '4px', fontWeight: '600' }}>
                           ⚠️ Series 0020231501 se start hoti hai. Isse kam number allowed nahi hai.
