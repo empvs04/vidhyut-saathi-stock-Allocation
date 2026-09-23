@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 import { BatchesAPI, TemplatesAPI, RecordsAPI } from '../services/api';
 import SheetPreview from '../components/SheetPreview';
-import CardPreview from '../components/CardPreview';
 
 export const SHEET_PRESETS_OPTIONS = [
   {
@@ -1399,6 +1398,36 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                 </div>
               )}
 
+              {/* Sheet / Page Size Selection directly inside Form */}
+              <div className="form-group" style={{ marginBottom: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '5px' }}>
+                  <label className="form-label" style={{ margin: 0, fontWeight: '700' }}>
+                    📄 Sheet / Page Size
+                  </label>
+                  <span className="badge badge-primary" style={{ fontSize: '11px' }}>
+                    {currentPreset.labelsPerSheet} Labels/Sheet
+                  </span>
+                </div>
+                <select
+                  className="form-select"
+                  value={selectedSheetPresetId}
+                  onChange={(e) => handleSheetPresetChange(e.target.value)}
+                  style={{
+                    fontWeight: '700',
+                    color: '#0066cc',
+                    backgroundColor: '#eff6ff',
+                    borderColor: '#93c5fd',
+                    padding: '8px 10px',
+                  }}
+                >
+                  {SHEET_PRESETS_OPTIONS.map((opt) => (
+                    <option key={opt.id} value={opt.id}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* 5. Barcode Type & 6. Label Template (Clean Full-Width Alignment) */}
               <div style={{ display: 'grid', gridTemplateColumns: '135px minmax(0, 1fr)', gap: '10px' }}>
                 <div className="form-group" style={{ minWidth: 0 }}>
@@ -1583,132 +1612,34 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
           )}
         </div>
 
-        {/* Right Column: Live Sheet & Single Label Preview */}
+        {/* Right Column: Live Sheet Preview */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {/* Live Single Label Preview Card */}
-          <div className="card" style={{ padding: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <div>
-                <h3 style={{ fontSize: '14px', fontWeight: '800', color: '#0f172a' }}>
-                  {inputMode === 'single'
-                    ? 'Single Label Live Artwork & Barcode'
-                    : 'Live Label Artwork & Barcode Overlay Preview'}
-                </h3>
-                <div style={{ fontSize: '12px', color: '#64748b' }}>
-                  {inputMode === 'single'
-                    ? `Exact physical 2" × 1.5" label with barcode and serial "${singleSerial}"`
-                    : inputMode === 'excel' && importedSerials.length > 0
-                    ? `Showing first label from uploaded file: ${importedSerials[0]}`
-                    : 'Designated barcode area overlays code & serial dynamically while preserving 100% of master artwork.'}
-                </div>
-              </div>
-              <span className="badge badge-success">Actual 2" × 1.5" Aspect</span>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0' }}>
-              <CardPreview
-                serialNumber={
-                  inputMode === 'single'
-                    ? singleSerial || '0020231501'
-                    : inputMode === 'excel' && importedSerials.length > 0
-                    ? importedSerials[0]
-                    : startSerialNumber || '0020231501'
-                }
-                width={inputMode === 'single' ? 380 : 340}
-                showCropGuides
-              />
-            </div>
-
-            {inputMode === 'single' && (
-              <div
-                style={{
-                  marginTop: '12px',
-                  padding: '12px',
-                  backgroundColor: '#f8fafc',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(3, 1fr)',
-                  gap: '8px',
-                  fontSize: '12px',
-                  textAlign: 'center',
-                }}
-              >
-                <div>
-                  <span style={{ color: '#64748b', display: 'block' }}>Physical Size:</span>
-                  <strong style={{ color: '#0f172a' }}>2" × 1.5" (144×108 pt)</strong>
-                </div>
-                <div>
-                  <span style={{ color: '#64748b', display: 'block' }}>Symbology:</span>
-                  <strong style={{ color: '#0f172a' }}>Code 128 (Standard)</strong>
-                </div>
-                <div>
-                  <span style={{ color: '#64748b', display: 'block' }}>Identifier:</span>
-                  <strong className="font-mono" style={{ color: '#0066cc' }}>
-                    {cardSeries}{singleSerial}
-                  </strong>
-                </div>
-              </div>
-            )}
+          <div className="card">
+            <SheetPreview
+              startSerialNumber={
+                inputMode === 'single'
+                  ? singleSerial || '0020231501'
+                  : inputMode === 'excel' && importedSerials.length > 0
+                  ? importedSerials[0]
+                  : startSerialNumber
+              }
+              quantity={
+                inputMode === 'single'
+                  ? 1
+                  : inputMode === 'excel'
+                  ? importedSerials.length
+                  : parseInt(quantity || 0, 10)
+              }
+              cardSeries={cardSeries}
+              pageNumber={1}
+              customSerials={
+                inputMode === 'excel' && importedSerials.length > 0
+                  ? importedSerials
+                  : null
+              }
+              sheetPreset={currentPreset}
+            />
           </div>
-
-          {/* Live Sheet Preview (Shown in sequential & excel modes) */}
-          {inputMode !== 'single' ? (
-            <div className="card">
-              <SheetPreview
-                startSerialNumber={
-                  inputMode === 'excel' && importedSerials.length > 0
-                    ? importedSerials[0]
-                    : startSerialNumber
-                }
-                quantity={
-                  inputMode === 'excel'
-                    ? importedSerials.length
-                    : parseInt(quantity || 0, 10)
-                }
-                cardSeries={cardSeries}
-                pageNumber={1}
-                customSerials={
-                  inputMode === 'excel' && importedSerials.length > 0
-                    ? importedSerials
-                    : null
-                }
-                sheetPreset={currentPreset}
-              />
-            </div>
-          ) : (
-            <div
-              className="card"
-              style={{
-                padding: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                backgroundColor: '#ffffff',
-              }}
-            >
-              <div>
-                <h4 style={{ fontSize: '13.5px', fontWeight: '700', color: '#0f172a' }}>
-                  Need this single label on a 12" × 18" Sheet?
-                </h4>
-                <p style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
-                  You can also switch to Sequential mode with Quantity = 1 to generate a 12" × 18" printing plate.
-                </p>
-              </div>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                style={{ fontSize: '12px', padding: '6px 12px' }}
-                onClick={() => {
-                  setStartSerialNumber(singleSerial);
-                  setQuantity(1);
-                  setInputMode('sequential');
-                }}
-              >
-                Generate on 12" × 18" Sheet
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </div>
