@@ -195,7 +195,7 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
       const res = await BatchesAPI.getNextSerial(series);
       if (res.data?.success && res.data.nextSerialNumber) {
         setStartSerialNumber(res.data.nextSerialNumber);
-        if (updateSingle || singleSerial === '0020231501' || isSerialBelowMin(singleSerial)) {
+        if (updateSingle || singleSerial === '0020231501' || singleSerial === startSerialNumber || isSerialBelowMin(singleSerial)) {
           setSingleSerial(res.data.nextSerialNumber);
         }
       }

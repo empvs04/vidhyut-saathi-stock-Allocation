@@ -196,11 +196,41 @@ export const DataStore = {
       }
     }
 
+    // Determine batch identifier and serial range to ensure 100% records cleanup
+    const batchIdStr = String(batch.batchId || '');
+    const idStr = String(batch._id || '');
+    const startM = String(batch.startSerialNumber || '').trim().match(/\d+$/);
+    const endM = String(batch.endSerialNumber || '').trim().match(/\d+$/);
+    const startNumeric = startM ? BigInt(startM[0]) : null;
+    const endNumeric = endM ? BigInt(endM[0]) : null;
+
     // Remove batch from local storage
     store.batches = store.batches.filter((b) => b.batchId !== id && b._id !== id);
 
-    // Remove associated records from local storage to free memory
-    store.records = store.records.filter((r) => r.batchId !== batch._id && r.batchId !== batch.batchId);
+    // Remove associated records from local storage to free memory and rollback serial series
+    store.records = store.records.filter((r) => {
+      // 1. Direct batchId matching
+      const rBatchId = typeof r.batchId === 'object' && r.batchId !== null
+        ? String(r.batchId._id || r.batchId.batchId || '')
+        : String(r.batchId || '');
+      if (rBatchId === idStr || rBatchId === batchIdStr) {
+        return false;
+      }
+
+      // 2. Numeric serial range matching for this batch's series
+      if (startNumeric !== null && endNumeric !== null && (!batch.cardSeries || r.cardSeries === batch.cardSeries)) {
+        const rM = String(r.serialNumber || '').trim().match(/\d+$/);
+        if (rM) {
+          const rNum = BigInt(rM[0]);
+          if (rNum >= startNumeric && rNum <= endNumeric) {
+            return false;
+          }
+        }
+      }
+
+      return true;
+    });
+
     writeStore(store);
 
     // Remove from MongoDB
@@ -210,11 +240,22 @@ export const DataStore = {
         const batchQuery = isObjId ? { $or: [{ _id: id }, { batchId: id }] } : { batchId: id };
         await BarcodeBatch.deleteOne(batchQuery);
 
-        const recConditions = [{ batchId: batch.batchId }];
+        const recConditions = [];
         if (batch._id && mongoose.Types.ObjectId.isValid(batch._id)) {
-          recConditions.push({ batchId: batch._id });
+          recConditions.push({ batchId: new mongoose.Types.ObjectId(batch._id) });
         }
-        await BarcodeRecord.deleteMany({ $or: recConditions });
+        if (id && mongoose.Types.ObjectId.isValid(id)) {
+          recConditions.push({ batchId: new mongoose.Types.ObjectId(id) });
+        }
+        if (startM && endM) {
+          recConditions.push({
+            cardSeries: batch.cardSeries || 'VS',
+            serialNumber: { $gte: batch.startSerialNumber, $lte: batch.endSerialNumber },
+          });
+        }
+        if (recConditions.length > 0) {
+          await BarcodeRecord.deleteMany({ $or: recConditions });
+        }
       } catch (e) {
         console.warn('Mongo deleteBatch error:', e.message);
       }

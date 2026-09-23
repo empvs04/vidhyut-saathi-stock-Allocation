@@ -59,9 +59,10 @@ export default function SavedBatches({ onPreviewBatch, onNavigate }) {
     try {
       const res = await BatchesAPI.deleteBatch(deleteModalBatch.batchId);
       if (res.data.success) {
+        const nextSerial = res.data.nextSerialNumber || '0020231501';
         setDeleteNotification({
           type: 'success',
-          message: `Batch "${deleteModalBatch.batchName}" (${deleteModalBatch.batchId}) and its PDF were successfully deleted. Memory and storage freed!`,
+          message: `Batch "${deleteModalBatch.batchName}" (${deleteModalBatch.batchId}) database aur storage se delete ho gaya. Series 1-step rollback hokar next serial: ${nextSerial} ho gayi hai.`,
         });
         setDeleteModalBatch(null);
         fetchBatches();

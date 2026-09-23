@@ -596,10 +596,13 @@ export async function deleteBatch(req, res) {
       return res.status(404).json({ success: false, message: 'Batch not found.' });
     }
 
+    const nextSerialData = await DataStore.getNextSerialNumber(deleted.cardSeries || 'VS');
+
     return res.status(200).json({
       success: true,
-      message: `Batch "${deleted.batchName}" (${deleted.batchId}) and its PDF were successfully deleted. Memory and disk space cleared.`,
+      message: `Batch "${deleted.batchName}" (${deleted.batchId}) and its PDF were successfully deleted from database. Series rolled back to ${nextSerialData.nextSerialNumber}.`,
       batchId: deleted.batchId,
+      nextSerialNumber: nextSerialData.nextSerialNumber,
     });
   } catch (err) {
     return res.status(500).json({
