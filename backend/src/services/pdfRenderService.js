@@ -196,29 +196,35 @@ export async function renderBatchPDF({
             .strokeColor('#222222')
             .stroke();
 
-          // ── CONTENT inside box — moved down for clean breathing space above barcode ───────
-          const innerTopPad = 4.8;           // Generous breathing space from top border
-          const bcY  = boxY + innerTopPad;   // Barcode starts lower inside the box
+          // ── CONTENT inside box — moved slightly down for balanced space above barcode ───────
+          const innerTopPad = 6.2;           // Balanced space above barcode
+          const bcY  = boxY + innerTopPad;   // Barcode starts slightly lower
           const serialFontSize = 6.2;
 
-          // 4. Draw barcode image inside the rounded box
-          doc.image(barcodePng, bcX, bcY, {
+          // 4. Draw barcode image inside the rounded box (horizontally centered)
+          const barcodeBoxCenterX = boxX + boxW / 2;
+          const centeredBcX = barcodeBoxCenterX - bcW / 2;
+
+          doc.image(barcodePng, centeredBcX, bcY, {
             width: bcW,
             height: bcH,
           });
           barcodeRenderCount++;
 
-          // 5. Draw serial number below barcode (moves down with barcode)
+          // 5. Draw serial number below barcode (moves down with barcode, centered on same axis)
           const textY = bcY + bcH + 1.2;
           doc
             .font('Courier-Bold')
             .fontSize(serialFontSize)
-            .fillColor('#000000')
-            .text(serial, boxX, textY, {
-              width: boxW,
-              align: 'center',
-              characterSpacing: 0.8,
-            });
+            .fillColor('#000000');
+
+          const textWidth = doc.widthOfString(serial, { characterSpacing: 0.8 });
+          const textX = barcodeBoxCenterX - textWidth / 2;
+
+          doc.text(serial, textX, textY, {
+            lineBreak: false,
+            characterSpacing: 0.8,
+          });
           serialRenderCount++;
 
           // Duplicate rendering safety assertion
