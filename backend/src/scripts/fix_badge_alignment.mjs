@@ -83,12 +83,18 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
         font-family: 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', sans-serif;
         font-weight: normal;
         fill: #111111;
+        stroke: #111111;
+        stroke-width: 1.3px;
+        stroke-linejoin: round;
         text-anchor: start;
       }
       .badge-sub {
         font-family: 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', sans-serif;
         font-weight: normal;
         fill: #111111;
+        stroke: #111111;
+        stroke-width: 1.0px;
+        stroke-linejoin: round;
         text-anchor: start;
       }
     </style>
@@ -166,11 +172,11 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
     points="${SX - 10},${SY + 4} ${SX - 2},${SY + 13} ${SX + 14},${SY - 9}"
     stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 
-  <!-- 8. LEFT BADGE TEXT (FIRST LABEL FONT: Impact / Condensed Heavy) -->
+  <!-- 8. LEFT BADGE TEXT (SLIGHTLY BOLDER / HEAVIER WEIGHT) -->
   <text x="${LT_X}" y="${LT_Y1}" class="badge-heading" font-size="64" letter-spacing="0">10 YEARS</text>
   <text x="${LT_X}" y="${LT_Y2}" class="badge-sub" font-size="44" letter-spacing="1">LONG LIFE</text>
 
-  <!-- 9. RIGHT BADGE TEXT (FIRST LABEL FONT: Impact / Condensed Heavy) -->
+  <!-- 9. RIGHT BADGE TEXT (SLIGHTLY BOLDER / HEAVIER WEIGHT) -->
   <text x="${RT_X}" y="${RT_Y1}" class="badge-sub" font-size="38" letter-spacing="0.5">CARD WARRANTY</text>
   <text x="${RT_X}" y="${RT_Y2}" class="badge-heading" font-size="64" letter-spacing="0">3 YEARS</text>
 
