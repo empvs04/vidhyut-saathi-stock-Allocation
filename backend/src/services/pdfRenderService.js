@@ -196,9 +196,9 @@ export async function renderBatchPDF({
             .strokeColor('#222222')
             .stroke();
 
-          // ── CONTENT inside box — moved slightly down for balanced space above barcode ───────
-          const innerTopPad = 6.2;           // Balanced space above barcode
-          const bcY  = boxY + innerTopPad;   // Barcode starts slightly lower
+          // ── CONTENT inside box — balanced vertical layout with clean gap between barcode & serial ───────
+          const innerTopPad = 4.2;           // Balanced space above barcode
+          const bcY  = boxY + innerTopPad;   // Barcode starts cleanly
           const serialFontSize = 6.2;
 
           // 4. Draw barcode image inside the rounded box (horizontally centered)
@@ -211,8 +211,8 @@ export async function renderBatchPDF({
           });
           barcodeRenderCount++;
 
-          // 5. Draw serial number below barcode (moves down with barcode, centered on same axis)
-          const textY = bcY + bcH + 1.2;
+          // 5. Draw serial number below barcode with increased breathing space
+          const textY = bcY + bcH + 2.8;
           doc
             .font('Courier-Bold')
             .fontSize(serialFontSize)
@@ -340,7 +340,7 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = '') {
     .stroke();
 
   // ── CONTENT — moved down with clean top breathing space ───────────────
-  const innerTopPad = 4.8;
+  const innerTopPad = 4.2;
   const bcY  = boxY + innerTopPad;
 
   // 4. Draw barcode
@@ -349,8 +349,8 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = '') {
     height: bcH,
   });
 
-  // 5. Draw serial number
-  const textY = bcY + bcH + 1.2;
+  // 5. Draw serial number with increased breathing space from barcode
+  const textY = bcY + bcH + 2.8;
   doc
     .font('Courier-Bold')
     .fontSize(6.2)

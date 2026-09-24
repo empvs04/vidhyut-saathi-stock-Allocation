@@ -82,8 +82,8 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
   <defs>
     <style>
       .badge-bold {
-        font-family: 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', sans-serif;
-        font-weight: normal;
+        font-family: 'Arial Black', 'Impact', sans-serif;
+        font-weight: 900;
         fill: #111111;
         stroke: none;
         text-anchor: middle;
@@ -170,13 +170,13 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
     points="${SX - 10},${SY + 4} ${SX - 2},${SY + 13} ${SX + 14},${SY - 9}"
     stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 
-  <!-- 8. LEFT BADGE TEXT (10 YEARS CLEAN BOLD, LONG LIFE REGULAR) -->
-  <text x="${L_TEXT_CENTER}" y="${LT_Y1}" class="badge-bold" font-size="65">10 YEARS</text>
-  <text x="${L_TEXT_CENTER}" y="${LT_Y2}" class="badge-regular" font-size="35" letter-spacing="2.5">LONG LIFE</text>
+  <!-- 8. LEFT BADGE TEXT (FULL WIDTH ALIGNED) -->
+  <text x="${L_TEXT_CENTER}" y="${LT_Y1}" class="badge-bold" font-size="68" letter-spacing="2">10 YEARS</text>
+  <text x="${L_TEXT_CENTER}" y="${LT_Y2}" class="badge-regular" font-size="38" letter-spacing="7">LONG LIFE</text>
 
-  <!-- 9. RIGHT BADGE TEXT (CARD WARRANTY REGULAR, 3 YEARS CLEAN BOLD) -->
-  <text x="${R_TEXT_CENTER}" y="${RT_Y1}" class="badge-regular" font-size="33" letter-spacing="1.5">CARD WARRANTY</text>
-  <text x="${R_TEXT_CENTER}" y="${RT_Y2}" class="badge-bold" font-size="65">3 YEARS</text>
+  <!-- 9. RIGHT BADGE TEXT (FULL WIDTH ALIGNED) -->
+  <text x="${R_TEXT_CENTER}" y="${RT_Y1}" class="badge-regular" font-size="36" letter-spacing="4.5">CARD WARRANTY</text>
+  <text x="${R_TEXT_CENTER}" y="${RT_Y2}" class="badge-bold" font-size="68" letter-spacing="2">3 YEARS</text>
 
 </svg>`;
 

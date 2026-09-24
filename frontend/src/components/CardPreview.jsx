@@ -97,7 +97,7 @@ export default function CardPreview({
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'flex-start',
-            gap: '3px',
+            gap: '5.5px',
             pointerEvents: 'none',
             border: 'none',
             background: 'transparent',
