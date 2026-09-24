@@ -97,14 +97,20 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
     </style>
   </defs>
 
-  <!-- 1. ERASE ONLY INNER BADGE BAND (Preserve outer main label border at x=0..12 and x=1188..1200) -->
+  <!-- 1. REMOVE TOP CORNER UNWANTED ARROW/TRIANGULAR MARKS -->
+  <!-- Top-Left Corner mark removal -->
+  <rect x="25" y="16" width="32" height="20" fill="#FFFFFF"/>
+  <!-- Top-Right Corner mark removal -->
+  <rect x="1143" y="16" width="32" height="20" fill="#FFFFFF"/>
+
+  <!-- 2. ERASE ONLY INNER BADGE BAND (Preserve outer main label border at x=0..12 and x=1188..1200) -->
   <rect x="12" y="${BADGE_TOP - 4}" width="${W - 24}" height="${BADGE_H + 8}" fill="#FFFFFF"/>
 
-  <!-- 2. RESTORE / ENSURE MAIN LABEL OUTER BORDERS ARE CONTINUOUS AND COMPLETE -->
+  <!-- 3. RESTORE / ENSURE MAIN LABEL OUTER BORDERS ARE CONTINUOUS AND COMPLETE -->
   <rect x="0" y="${BADGE_TOP - 10}" width="12" height="${BADGE_H + 20}" fill="#000000"/>
   <rect x="${W - 12}" y="${BADGE_TOP - 10}" width="12" height="${BADGE_H + 20}" fill="#000000"/>
 
-  <!-- 3. ALL 4 BORDERS: COMPLETE CLOSED ROUNDED RECTANGLES (TOP + BOTTOM + LEFT + RIGHT) -->
+  <!-- 4. ALL 4 BORDERS: COMPLETE CLOSED ROUNDED RECTANGLES (TOP + BOTTOM + LEFT + RIGHT) -->
   <!-- Left Box -->
   <rect x="${L_X}" y="${BADGE_TOP}" width="${BOX_W}" height="${BADGE_H}" rx="${BOX_RX}"
         fill="#FFFFFF" stroke="${STROKE_COLOR}" stroke-width="${STROKE_W}"/>
@@ -113,11 +119,11 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
   <rect x="${R_X}" y="${BADGE_TOP}" width="${BOX_W}" height="${BADGE_H}" rx="${BOX_RX}"
         fill="#FFFFFF" stroke="${STROKE_COLOR}" stroke-width="${STROKE_W}"/>
 
-  <!-- 4. VERTICAL DIVIDERS -->
+  <!-- 5. VERTICAL DIVIDERS -->
   <line x1="${L_DIV}" y1="${BADGE_TOP + 1}" x2="${L_DIV}" y2="${BADGE_BOTTOM - 1}" stroke="${STROKE_COLOR}" stroke-width="${STROKE_W}"/>
   <line x1="${R_DIV}" y1="${BADGE_TOP + 1}" x2="${R_DIV}" y2="${BADGE_BOTTOM - 1}" stroke="${STROKE_COLOR}" stroke-width="${STROKE_W}"/>
 
-  <!-- 5. LEFT ICON: CALENDAR -->
+  <!-- 6. LEFT ICON: CALENDAR -->
   <circle cx="${CX}" cy="${CY}" r="${IR}" fill="#111111"/>
   
   <!-- Hooks -->
@@ -135,7 +141,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
   <rect x="${GX2}" y="${GY2}" width="${GW}" height="${GH}" rx="2" fill="#FFFFFF"/>
   <rect x="${GX3}" y="${GY2}" width="${GW}" height="${GH}" rx="2" fill="#FFFFFF"/>
 
-  <!-- 6. RIGHT ICON: SHIELD WITH CHECK -->
+  <!-- 7. RIGHT ICON: SHIELD WITH CHECK -->
   <circle cx="${SX}" cy="${SY}" r="${IR}" fill="#111111"/>
   
   <!-- Outer Shield -->
@@ -165,11 +171,11 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
     points="${SX - 10},${SY + 4} ${SX - 2},${SY + 13} ${SX + 14},${SY - 9}"
     stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 
-  <!-- 7. LEFT BADGE TEXT -->
+  <!-- 8. LEFT BADGE TEXT -->
   <text x="${LT_X}" y="${LT_Y1}" class="badge-heading" font-size="56" letter-spacing="-1">10 YEARS</text>
   <text x="${LT_X}" y="${LT_Y2}" class="badge-sub" font-size="38" letter-spacing="1">LONG LIFE</text>
 
-  <!-- 8. RIGHT BADGE TEXT -->
+  <!-- 9. RIGHT BADGE TEXT -->
   <text x="${RT_X}" y="${RT_Y1}" class="badge-sub" font-size="33" letter-spacing="0.2">CARD WARRANTY</text>
   <text x="${RT_X}" y="${RT_Y2}" class="badge-heading" font-size="56" letter-spacing="-1">3 YEARS</text>
 
