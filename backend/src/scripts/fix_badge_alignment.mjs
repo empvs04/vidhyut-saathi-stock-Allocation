@@ -45,11 +45,11 @@ const IR = 50;
 const L_TEXT_CENTER = 394;
 const R_TEXT_CENTER = 976;
 
-const LT_Y1 = 394; // 10 YEARS (clean space from top border)
-const LT_Y2 = 444; // LONG LIFE (clean space above bottom border)
+const LT_Y1 = 400; // 10 YEARS (equal top margin matching CARD WARRANTY)
+const LT_Y2 = 446; // LONG LIFE (clean bottom margin)
 
-const RT_Y1 = 378; // CARD WARRANTY (clean space from top border)
-const RT_Y2 = 444; // 3 YEARS (clean space above bottom border)
+const RT_Y1 = 378; // CARD WARRANTY (equal top margin matching 10 YEARS)
+const RT_Y2 = 446; // 3 YEARS (clean bottom margin)
 
 // Calendar Icon Geometry (Centered at CX, CY)
 const CAL_W = 66;
@@ -85,9 +85,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
         font-family: 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', sans-serif;
         font-weight: normal;
         fill: #111111;
-        stroke: #111111;
-        stroke-width: 0.8px;
-        stroke-linejoin: round;
+        stroke: none;
         text-anchor: middle;
       }
       .badge-regular {
@@ -172,13 +170,13 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
     points="${SX - 10},${SY + 4} ${SX - 2},${SY + 13} ${SX + 14},${SY - 9}"
     stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 
-  <!-- 8. LEFT BADGE TEXT (10 YEARS BOLD, LONG LIFE REGULAR/NON-BOLD) -->
-  <text x="${L_TEXT_CENTER}" y="${LT_Y1}" class="badge-bold" font-size="68">10 YEARS</text>
-  <text x="${L_TEXT_CENTER}" y="${LT_Y2}" class="badge-regular" font-size="36" letter-spacing="2.5">LONG LIFE</text>
+  <!-- 8. LEFT BADGE TEXT (10 YEARS CLEAN BOLD, LONG LIFE REGULAR) -->
+  <text x="${L_TEXT_CENTER}" y="${LT_Y1}" class="badge-bold" font-size="65">10 YEARS</text>
+  <text x="${L_TEXT_CENTER}" y="${LT_Y2}" class="badge-regular" font-size="35" letter-spacing="2.5">LONG LIFE</text>
 
-  <!-- 9. RIGHT BADGE TEXT (CARD WARRANTY REGULAR/NON-BOLD, 3 YEARS BOLD) -->
+  <!-- 9. RIGHT BADGE TEXT (CARD WARRANTY REGULAR, 3 YEARS CLEAN BOLD) -->
   <text x="${R_TEXT_CENTER}" y="${RT_Y1}" class="badge-regular" font-size="33" letter-spacing="1.5">CARD WARRANTY</text>
-  <text x="${R_TEXT_CENTER}" y="${RT_Y2}" class="badge-bold" font-size="68">3 YEARS</text>
+  <text x="${R_TEXT_CENTER}" y="${RT_Y2}" class="badge-bold" font-size="65">3 YEARS</text>
 
 </svg>`;
 
