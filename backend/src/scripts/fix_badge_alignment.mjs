@@ -21,7 +21,8 @@ const BADGE_CY = BADGE_TOP + BADGE_H / 2; // 406
 // Right margin: 24px (12px space from 12px main outer border)
 // Center gap: 12px
 const BOX_W = 570;
-const BOX_RX = 12;
+// Slightly increased corner radius (from 12 to 20) for smooth, subtle rounded corners
+const BOX_RX = 20;
 const STROKE_COLOR = '#111111';
 const STROKE_W = 3.5;
 
@@ -110,7 +111,7 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
   <rect x="0" y="${BADGE_TOP - 10}" width="12" height="${BADGE_H + 20}" fill="#000000"/>
   <rect x="${W - 12}" y="${BADGE_TOP - 10}" width="12" height="${BADGE_H + 20}" fill="#000000"/>
 
-  <!-- 4. ALL 4 BORDERS: COMPLETE CLOSED ROUNDED RECTANGLES (TOP + BOTTOM + LEFT + RIGHT) -->
+  <!-- 4. ALL 4 BORDERS: COMPLETE CLOSED ROUNDED RECTANGLES WITH INCREASED CORNER RADIUS (rx=20) -->
   <!-- Left Box -->
   <rect x="${L_X}" y="${BADGE_TOP}" width="${BOX_W}" height="${BADGE_H}" rx="${BOX_RX}"
         fill="#FFFFFF" stroke="${STROKE_COLOR}" stroke-width="${STROKE_W}"/>
