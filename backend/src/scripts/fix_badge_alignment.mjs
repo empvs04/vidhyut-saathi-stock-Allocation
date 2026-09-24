@@ -39,15 +39,18 @@ const SY = BADGE_CY;
 // Icon Radius
 const IR = 50;
 
-// Left Box Text Coordinates
-const LT_X = L_DIV + 18;
-const LT_Y1 = BADGE_CY - 10;
-const LT_Y2 = BADGE_CY + 46;
+// Center X of available text area in each box
+// Left Box text area: x=194 (divider) to x=594 (right edge) -> Center = 394
+// Right Box text area: x=776 (divider) to x=1176 (right edge) -> Center = 976
+const L_TEXT_CENTER = 394;
+const R_TEXT_CENTER = 976;
+
+const LT_Y1 = 388; // 10 YEARS
+const LT_Y2 = 442; // LONG LIFE lifted up for generous bottom clearance
 
 // Right Box Text Coordinates
-const RT_X = R_DIV + 18;
-const RT_Y1 = BADGE_CY - 14;
-const RT_Y2 = BADGE_CY + 46;
+const RT_Y1 = 372; // CARD WARRANTY near top border
+const RT_Y2 = 442; // 3 YEARS lifted up for generous bottom clearance
 
 // Calendar Icon Geometry (Centered at CX, CY)
 const CAL_W = 66;
@@ -83,13 +86,19 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
         font-family: 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', sans-serif;
         font-weight: normal;
         fill: #111111;
-        text-anchor: start;
+        stroke: #111111;
+        stroke-width: 0.8px;
+        stroke-linejoin: round;
+        text-anchor: middle;
       }
       .badge-sub {
         font-family: 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', sans-serif;
         font-weight: normal;
         fill: #111111;
-        text-anchor: start;
+        stroke: #111111;
+        stroke-width: 0.6px;
+        stroke-linejoin: round;
+        text-anchor: middle;
       }
     </style>
   </defs>
@@ -166,13 +175,13 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
     points="${SX - 10},${SY + 4} ${SX - 2},${SY + 13} ${SX + 14},${SY - 9}"
     stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
 
-  <!-- 8. LEFT BADGE TEXT (FIRST LABEL FONT: Impact / Condensed Heavy) -->
-  <text x="${LT_X}" y="${LT_Y1}" class="badge-heading" font-size="64" letter-spacing="0">10 YEARS</text>
-  <text x="${LT_X}" y="${LT_Y2}" class="badge-sub" font-size="44" letter-spacing="1">LONG LIFE</text>
+  <!-- 8. LEFT BADGE TEXT (LIFTED CLEANLY FOR BOTTOM CLEARANCE) -->
+  <text x="${L_TEXT_CENTER}" y="${LT_Y1}" class="badge-heading" font-size="70">10 YEARS</text>
+  <text x="${L_TEXT_CENTER}" y="${LT_Y2}" class="badge-sub" font-size="44" letter-spacing="2.5">LONG LIFE</text>
 
-  <!-- 9. RIGHT BADGE TEXT (FIRST LABEL FONT: Impact / Condensed Heavy) -->
-  <text x="${RT_X}" y="${RT_Y1}" class="badge-sub" font-size="38" letter-spacing="0.5">CARD WARRANTY</text>
-  <text x="${RT_X}" y="${RT_Y2}" class="badge-heading" font-size="64" letter-spacing="0">3 YEARS</text>
+  <!-- 9. RIGHT BADGE TEXT (LIFTED CLEANLY FOR BOTTOM CLEARANCE) -->
+  <text x="${R_TEXT_CENTER}" y="${RT_Y1}" class="badge-sub" font-size="45" letter-spacing="1.2">CARD WARRANTY</text>
+  <text x="${R_TEXT_CENTER}" y="${RT_Y2}" class="badge-heading" font-size="68">3 YEARS</text>
 
 </svg>`;
 
