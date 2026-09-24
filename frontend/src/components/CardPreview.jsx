@@ -89,26 +89,28 @@ export default function CardPreview({
         <div
           style={{
             position: 'absolute',
-            top: '62.0%',
-            left: '2.5%',
-            width: '95%',
-            height: '23.5%',
+            top: '67.8%',
+            left: '15%',
+            width: '70%',
+            height: '21.5%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
-            paddingTop: '2px',
+            justifyContent: 'flex-start',
             gap: '3px',
             pointerEvents: 'none',
+            border: 'none',
+            background: 'transparent',
           }}
         >
-          {/* Barcode Bars SVG (Wider: 82% width) */}
+          {/* Barcode Bars SVG (Centered, not too tall or wide) */}
           <svg
             viewBox={`0 0 ${pattern.totalWidth} 40`}
             style={{
-              width: '82%',
+              width: '100%',
               height: '46%',
               shapeRendering: 'crispEdges',
+              display: 'block',
             }}
           >
             {pattern.bars.map((bar, idx) => (
@@ -123,16 +125,17 @@ export default function CardPreview({
             ))}
           </svg>
 
-          {/* Human Readable Serial Number below barcode inside the same box (Wider typography) */}
+          {/* Human Readable Serial Number below barcode in single line */}
           <div
             style={{
-              fontSize: `${Math.max(9, width * 0.033)}px`,
-              fontWeight: '800',
+              fontSize: `${Math.max(8.5, width * 0.029)}px`,
+              fontWeight: '700',
               fontFamily: "'Courier New', 'Courier', monospace",
               color: '#000000',
-              letterSpacing: '1.4px',
+              letterSpacing: '1.0px',
               lineHeight: '1',
               textAlign: 'center',
+              whiteSpace: 'nowrap',
             }}
           >
             {serialNumber}

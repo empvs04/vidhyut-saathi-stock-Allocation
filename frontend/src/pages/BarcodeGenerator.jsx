@@ -23,7 +23,7 @@ import SheetPreview from '../components/SheetPreview';
 export const SHEET_PRESETS_OPTIONS = [
   {
     id: '12x18_default',
-    name: '12 × 18 inch (Default)',
+    name: '12 × 18 inch (Default) — 55 Labels',
     label: '12 × 18 inch (Default) — 55 Labels',
     sheetWidthInches: 12.0,
     sheetHeightInches: 18.0,
@@ -34,13 +34,15 @@ export const SHEET_PRESETS_OPTIONS = [
     labelsPerSheet: 55,
     marginHorizontalInches: 0.4,
     marginVerticalInches: 0.3,
-    badge: 'Commercial Press',
+    gapHorizontalMm: 2.0,
+    gapVerticalMm: 2.0,
+    badge: '12×18 Default Press',
     isCustom: false,
   },
   {
     id: 'a4_2x1_5',
-    name: '1:- A4 — 2 × 1.5 inch labels',
-    label: '1:- A4 — 2 × 1.5 inch labels (21 Labels)',
+    name: 'A4 — 2 × 1.5 inch Labels — 21 Labels',
+    label: 'A4 — 2 × 1.5 inch Labels — 21 Labels',
     sheetWidthInches: 8.27,
     sheetHeightInches: 11.69,
     labelWidthInches: 2.0,
@@ -48,15 +50,17 @@ export const SHEET_PRESETS_OPTIONS = [
     columns: 3,
     rows: 7,
     labelsPerSheet: 21,
-    marginHorizontalInches: 0.45,
-    marginVerticalInches: 0.40,
-    badge: 'A4 Office Sheet',
+    marginHorizontalInches: 0.5,
+    marginVerticalInches: 0.35,
+    gapHorizontalMm: 2.0,
+    gapVerticalMm: 2.0,
+    badge: 'A4 21-Labels',
     isCustom: false,
   },
   {
     id: '12x18_2x1_5',
-    name: '2:- 12 × 18 inch — 2 × 1.5 inch labels',
-    label: '2:- 12 × 18 inch — 2 × 1.5 inch labels (55 Labels)',
+    name: '12 × 18 inch — 2 × 1.5 inch Labels — 55 Labels',
+    label: '12 × 18 inch — 2 × 1.5 inch Labels — 55 Labels',
     sheetWidthInches: 12.0,
     sheetHeightInches: 18.0,
     labelWidthInches: 2.0,
@@ -66,13 +70,15 @@ export const SHEET_PRESETS_OPTIONS = [
     labelsPerSheet: 55,
     marginHorizontalInches: 0.4,
     marginVerticalInches: 0.3,
-    badge: '12×18 Sheet',
+    gapHorizontalMm: 2.0,
+    gapVerticalMm: 2.0,
+    badge: '12×18 Commercial',
     isCustom: false,
   },
   {
     id: 'a3_custom',
-    name: '3:- A3 — Custom label layout',
-    label: '3:- A3 — Custom label layout (Configurable / Default 50 Labels)',
+    name: 'A3 — Custom Layout',
+    label: 'A3 — Custom Layout',
     sheetWidthInches: 11.69,
     sheetHeightInches: 16.54,
     labelWidthInches: 2.0,
@@ -82,7 +88,9 @@ export const SHEET_PRESETS_OPTIONS = [
     labelsPerSheet: 50,
     marginHorizontalInches: 0.45,
     marginVerticalInches: 0.40,
-    badge: 'A3 Custom Layout',
+    gapHorizontalMm: 2.0,
+    gapVerticalMm: 2.0,
+    badge: 'A3 Custom',
     isCustom: true,
   },
 ];
@@ -647,7 +655,7 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                 backgroundColor: '#eff6ff',
                 padding: '6px 12px',
                 fontSize: '13px',
-                minWidth: '290px',
+                minWidth: '310px',
               }}
             >
               {SHEET_PRESETS_OPTIONS.map((opt) => (
@@ -659,58 +667,80 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
             <span className="badge badge-primary">{currentPreset.badge}</span>
           </div>
 
-          {/* Quick Metrics Breakdown */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-            <div style={{ fontSize: '12.5px', color: '#475569' }}>
-              Sheet: <strong style={{ color: '#0f172a' }}>{currentPreset.sheetWidthInches}" × {currentPreset.sheetHeightInches}"</strong> ({Math.round(currentPreset.sheetWidthInches * 72)} × {Math.round(currentPreset.sheetHeightInches * 72)} pt)
-            </div>
+          {/* Action buttons & Calibration */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <a
+              href="/api/batches/calibration-test"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secondary"
+              style={{
+                padding: '6px 12px',
+                fontSize: '12px',
+                gap: '6px',
+                borderColor: '#f59e0b',
+                color: '#b45309',
+                backgroundColor: '#fffbeb',
+                fontWeight: '700',
+              }}
+              title="Download print calibration test page with 1-inch & 2-inch ruler targets to verify 100% scale"
+            >
+              <Sliders size={14} />
+              Print Calibration Test (100% Ruler)
+            </a>
+          </div>
+        </div>
 
-            <div style={{ height: '16px', width: '1px', backgroundColor: '#e2e8f0' }} />
+        {/* Configuration Summary Cards */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+            gap: '8px',
+            marginTop: '4px',
+          }}
+        >
+          <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+            <div style={{ fontSize: '10px', fontWeight: '800', color: '#64748b', letterSpacing: '0.4px' }}>SHEET SIZE</div>
+            <div style={{ fontSize: '12.5px', fontWeight: '800', color: '#0f172a' }}>{currentPreset.sheetWidthInches}" × {currentPreset.sheetHeightInches}"</div>
+          </div>
+          <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+            <div style={{ fontSize: '10px', fontWeight: '800', color: '#64748b', letterSpacing: '0.4px' }}>LABEL SIZE</div>
+            <div style={{ fontSize: '12.5px', fontWeight: '800', color: '#0f172a' }}>{currentPreset.labelWidthInches}" × {currentPreset.labelHeightInches}" (144×108 pt)</div>
+          </div>
+          <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+            <div style={{ fontSize: '10px', fontWeight: '800', color: '#64748b', letterSpacing: '0.4px' }}>LAYOUT</div>
+            <div style={{ fontSize: '12.5px', fontWeight: '800', color: '#0f172a' }}>{currentPreset.columns} × {currentPreset.rows}</div>
+          </div>
+          <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+            <div style={{ fontSize: '10px', fontWeight: '800', color: '#64748b', letterSpacing: '0.4px' }}>LABELS / PAGE</div>
+            <div style={{ fontSize: '12.5px', fontWeight: '800', color: '#0066cc' }}>{currentPreset.labelsPerSheet} Labels</div>
+          </div>
+          <div style={{ padding: '8px 12px', background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+            <div style={{ fontSize: '10px', fontWeight: '800', color: '#64748b', letterSpacing: '0.4px' }}>CUTTING GAP</div>
+            <div style={{ fontSize: '12.5px', fontWeight: '800', color: '#0f172a' }}>2 mm (H & V)</div>
+          </div>
+          <div style={{ padding: '8px 12px', background: '#eff6ff', borderRadius: '6px', border: '1px solid #bfdbfe' }}>
+            <div style={{ fontSize: '10px', fontWeight: '800', color: '#0284c7', letterSpacing: '0.4px' }}>PRINT SCALE</div>
+            <div style={{ fontSize: '12.5px', fontWeight: '800', color: '#0369a1' }}>100% Actual Size</div>
+          </div>
+        </div>
 
-            <div style={{ fontSize: '12.5px', color: '#475569' }}>
-              Label: <strong style={{ color: '#0f172a' }}>{currentPreset.labelWidthInches}" × {currentPreset.labelHeightInches}"</strong> ({Math.round(currentPreset.labelWidthInches * 72)} × {Math.round(currentPreset.labelHeightInches * 72)} pt)
-            </div>
-
-            <div style={{ height: '16px', width: '1px', backgroundColor: '#e2e8f0' }} />
-
-            <div style={{ fontSize: '12.5px', color: '#475569' }}>
-              Grid: <strong style={{ color: '#0f172a' }}>{currentPreset.columns} cols × {currentPreset.rows} rows</strong> = <strong style={{ color: '#0066cc' }}>{currentPreset.labelsPerSheet} Labels/Sheet</strong>
-            </div>
-
-            <div style={{ height: '16px', width: '1px', backgroundColor: '#e2e8f0' }} />
-
-            {/* Margin Controls */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
-                <span style={{ color: '#64748b' }}>H-Margin:</span>
-                <input
-                  type="number"
-                  step="0.05"
-                  min="0.1"
-                  max="1.5"
-                  value={marginH}
-                  onChange={(e) => setMarginH(e.target.value)}
-                  className="form-input"
-                  style={{ width: '58px', padding: '3px 6px', fontSize: '12px', height: '26px' }}
-                />
-                <span style={{ color: '#94a3b8' }}>in</span>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
-                <span style={{ color: '#64748b' }}>V-Margin:</span>
-                <input
-                  type="number"
-                  step="0.05"
-                  min="0.1"
-                  max="1.5"
-                  value={marginV}
-                  onChange={(e) => setMarginV(e.target.value)}
-                  className="form-input"
-                  style={{ width: '58px', padding: '3px 6px', fontSize: '12px', height: '26px' }}
-                />
-                <span style={{ color: '#94a3b8' }}>in</span>
-              </div>
-            </div>
+        {/* Print Settings Warning Notice */}
+        <div
+          style={{
+            backgroundColor: '#fffbeb',
+            border: '1px solid #fde68a',
+            borderRadius: '6px',
+            padding: '8px 12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
+          <AlertTriangle size={15} color="#d97706" style={{ flexShrink: 0 }} />
+          <div style={{ fontSize: '11.5px', color: '#92400e' }}>
+            <strong>CRITICAL PRINT SETTING:</strong> When printing PDF sheets, select <strong>"Actual Size" / 100%</strong> scale. <strong>Disable "Fit to Page"</strong> or driver auto-scaling to ensure exact 2.00" × 1.50" physical cutting dimensions.
           </div>
         </div>
 

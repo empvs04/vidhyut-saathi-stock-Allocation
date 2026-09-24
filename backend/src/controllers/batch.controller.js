@@ -3,7 +3,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { DataStore } from '../services/dataStore.js';
 import { generateSerialNumbers } from '../services/barcodeService.js';
-import { renderBatchPDF } from '../services/pdfRenderService.js';
+import { renderBatchPDF, renderSingleLabelPDF, renderCalibrationTestPDF } from '../services/pdfRenderService.js';
 import { calculateLayout, getSheetPresetsList } from '../services/layoutEngine.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -631,4 +631,47 @@ export async function getNextSerial(req, res) {
     });
   }
 }
+
+/**
+ * Generate and stream Print Calibration & Ruler Test PDF
+ */
+export async function getCalibrationTestPdf(req, res) {
+  try {
+    const { serial = '0020231501' } = req.query;
+    const doc = await renderCalibrationTestPDF(serial);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'inline; filename="VidhyutSaathi_Print_Calibration_Test.pdf"');
+    return doc.pipe(res);
+  } catch (err) {
+    console.error('Calibration PDF error:', err);
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+}
+
+/**
+ * Generate and stream single 2" x 1.5" barcode label PDF
+ */
+export async function getSingleLabelPdf(req, res) {
+  try {
+    const { serial } = req.params;
+    const { series = '' } = req.query;
+    if (!serial) {
+      return res.status(400).json({ success: false, message: 'Serial number is required.' });
+    }
+    const doc = await renderSingleLabelPDF(serial, series);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="VidhyutSaathi_Label_${serial}.pdf"`);
+    return doc.pipe(res);
+  } catch (err) {
+    console.error('Single label PDF error:', err);
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+}
+
 

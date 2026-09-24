@@ -43,63 +43,100 @@ export default function PDFModal({ batch, onClose }) {
             padding: '16px 24px',
             borderBottom: '1px solid #e2e8f0',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
+            flexDirection: 'column',
+            gap: '10px',
             backgroundColor: '#f8fafc',
           }}
         >
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <h3 style={{ fontSize: '17px', fontWeight: '800', color: '#0f172a' }}>
-                {batch.batchName}
-              </h3>
-              <span className="badge badge-success">
-                <FileCheck size={12} />
-                PDF Ready
-              </span>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <h3 style={{ fontSize: '17px', fontWeight: '800', color: '#0f172a' }}>
+                  {batch.batchName}
+                </h3>
+                <span className="badge badge-success">
+                  <FileCheck size={12} />
+                  PDF Ready
+                </span>
+              </div>
+              <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+                Batch ID: <strong>{batch.batchId}</strong> • Total Labels: <strong>{batch.quantity}</strong> ({batch.totalPages} Pages) • Serials: <strong>{batch.startSerialNumber}</strong> → <strong>{batch.endSerialNumber}</strong>
+              </div>
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
-              Batch ID: <strong>{batch.batchId}</strong> • Series: <strong>{batch.cardSeries}</strong> • Total Labels: <strong>{batch.quantity}</strong> ({batch.totalPages} Pages) • Sheet: <strong>12" × 18"</strong>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <a
+                href={downloadUrl}
+                className="btn btn-primary"
+                style={{ fontSize: '13px', padding: '8px 14px', textDecoration: 'none' }}
+                download
+              >
+                <Download size={15} />
+                Download PDF
+              </a>
+
+              <a
+                href={previewUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-secondary"
+                style={{ fontSize: '13px', padding: '8px 14px', textDecoration: 'none' }}
+              >
+                <ExternalLink size={15} />
+                Open New Tab
+              </a>
+
+              <button
+                onClick={onClose}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#64748b',
+                  padding: '6px',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                }}
+              >
+                <X size={20} />
+              </button>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Critical Print Settings Info Banner */}
+          <div
+            style={{
+              backgroundColor: '#fffbeb',
+              border: '1px solid #fde68a',
+              borderRadius: '6px',
+              padding: '6px 12px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '11.5px',
+              color: '#92400e',
+              flexWrap: 'wrap',
+              gap: '6px',
+            }}
+          >
+            <div>
+              <strong>IMPORTANT PRINT SETTINGS:</strong> Print Scale: <strong>100% (Actual Size)</strong> • Disable: <strong>"Fit to Page"</strong> & <strong>"Shrink Oversized Pages"</strong> • Use correct paper size
+            </div>
             <a
-              href={downloadUrl}
-              className="btn btn-primary"
-              style={{ fontSize: '13px', padding: '8px 14px', textDecoration: 'none' }}
-              download
-            >
-              <Download size={15} />
-              Download PDF
-            </a>
-
-            <a
-              href={previewUrl}
+              href="/api/batches/calibration-test"
               target="_blank"
-              rel="noreferrer"
-              className="btn btn-secondary"
-              style={{ fontSize: '13px', padding: '8px 14px', textDecoration: 'none' }}
+              rel="noopener noreferrer"
+              style={{ color: '#b45309', fontWeight: '700', textDecoration: 'underline' }}
             >
-              <ExternalLink size={15} />
-              Open New Tab
+              Print Ruler Calibration Test Page →
             </a>
-
-            <button
-              onClick={onClose}
-              style={{
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: '#64748b',
-                padding: '6px',
-                borderRadius: '6px',
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
-              <X size={20} />
-            </button>
           </div>
         </div>
 

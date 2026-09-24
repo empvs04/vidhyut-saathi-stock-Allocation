@@ -230,23 +230,26 @@ export default function SheetPreview({
                       <div
                         style={{
                           position: 'absolute',
-                          top: '62.0%',
-                          left: '2.5%',
-                          width: '95%',
-                          height: '23.5%',
+                          top: '67.8%',
+                          left: '15%',
+                          width: '70%',
+                          height: '21.5%',
                           display: 'flex',
                           flexDirection: 'column',
                           alignItems: 'center',
-                          justifyContent: 'center',
+                          justifyContent: 'flex-start',
+                          gap: '1px',
                           pointerEvents: 'none',
+                          border: 'none',
+                          background: 'transparent',
                         }}
                       >
                         {/* Mini Barcode Bars */}
                         <div
                           style={{
-                            height: `${Math.max(2, 3.5 * zoom)}px`,
+                            height: `${Math.max(2, 3.2 * zoom)}px`,
                             backgroundColor: '#000000',
-                            width: '82%',
+                            width: '100%',
                             margin: '0 auto',
                             opacity: 0.95,
                           }}
@@ -254,17 +257,17 @@ export default function SheetPreview({
                         {/* Serial Text */}
                         <div
                           style={{
-                            fontSize: `${Math.max(4.5, 5.5 * zoom)}px`,
-                            fontWeight: '800',
+                            fontSize: `${Math.max(4.5, 5.2 * zoom)}px`,
+                            fontWeight: '700',
                             textAlign: 'center',
                             fontFamily: "'Courier New', monospace",
                             color: '#000000',
                             lineHeight: 1,
                             letterSpacing: '0.4px',
-                            marginTop: '1px',
+                            whiteSpace: 'nowrap',
                           }}
                         >
-                          {slot.serial ? slot.serial.slice(-8) : ''}
+                          {slot.serial ? slot.serial : ''}
                         </div>
                       </div>
                     </div>
