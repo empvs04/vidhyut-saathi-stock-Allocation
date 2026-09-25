@@ -170,15 +170,14 @@ export async function renderBatchPDF({
             backgroundcolor: 'ffffff',
           });
 
-          // 3. Barcode section geometry — matching uploaded image proportions (1200x900 -> 144x108 pt)
-          //    Scale factor: 144 / 1200 = 0.12 pt/px.
-          //    Barcode width: 976 px * 0.12 = 117.12 pt (tall & wide across container box)
-          //    Barcode height: 122 px * 0.12 = 14.64 pt
-          //    Barcode Y: 568 px * 0.12 = 68.16 pt
+          // 3. Barcode section geometry — matching full-height label (1200x900 -> 144x108 pt, 0.12 pt/px)
+          //    Barcode width: 976 px * 0.12 = 117.12 pt
+          //    Barcode height: 160 px * 0.12 = 19.20 pt
+          //    Barcode Y: 576 px * 0.12 = 69.12 pt
           const bcW = 117.12;
-          const bcH = 14.64;
+          const bcH = 19.20;
           const bcX = pos.x + (pos.width - bcW) / 2;  // Exactly centered: 13.44 pt
-          const bcY = pos.y + 68.16;
+          const bcY = pos.y + 69.12;
 
           // 4. Draw barcode image (Code 128)
           doc.image(barcodePng, bcX, bcY, {
@@ -188,8 +187,8 @@ export async function renderBatchPDF({
           barcodeRenderCount++;
 
           // 5. Draw bold serial number below barcode matching uploaded image font & alignment
-          const serialFontSize = 7.0;
-          const textY = pos.y + 84.2;
+          const serialFontSize = 7.2;
+          const textY = pos.y + 90.5;
           doc
             .font('Helvetica-Bold')
             .fontSize(serialFontSize)
