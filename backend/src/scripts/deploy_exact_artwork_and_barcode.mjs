@@ -9,23 +9,17 @@ const __dirname = path.dirname(__filename);
 async function deployExactMaster() {
   const masterSource = 'C:/Users/USER/.gemini/antigravity-ide/brain/3ae79501-f73b-4c4b-9e6d-4ddec9fb7aef/.user_uploaded/media_1790151917987.png';
   
-  // 1. Crop actual label card (eliminating empty top minY=59 and bottom maxY=712 margins)
-  // Outer card bounds: left: 8, top: 59, width: 1008, height: 654
-  const croppedCard = await sharp(masterSource)
-    .extract({ left: 8, top: 59, width: 1008, height: 654 })
+  // 1. Upscale masterSource (1024x768) to 1200x900 (ultra crisp 600 DPI for 2x1.5in)
+  const master1200 = await sharp(masterSource)
+    .resize(1200, 900, { kernel: 'lanczos3' })
     .toBuffer();
 
-  // 2. Resize to exact 1200x900 (filling 2"x1.5" at 600 DPI with proper 1.5" height)
-  const full1200 = await sharp(croppedCard)
-    .resize(1200, 900, { fit: 'fill' })
-    .toBuffer();
-
-  // 3. Clear ONLY the interior of the barcode box with pure white #FFFFFF
+  // 2. Clear ONLY the interior of the barcode box with pure white #FFFFFF
   // Preserving the rounded rectangle outline intact
-  const innerLeft = 36;
-  const innerTop = 565;
-  const innerWidth = 1128;
-  const innerHeight = 237;
+  const innerLeft = 71;
+  const innerTop = 560;
+  const innerWidth = 1058;
+  const innerHeight = 186;
   const rx = 10;
 
   const clearMaskSvg = `
@@ -34,14 +28,14 @@ async function deployExactMaster() {
     </svg>
   `;
 
-  const cleanTemplateBuffer = await sharp(full1200)
+  const cleanTemplateBuffer = await sharp(master1200)
     .composite([
       { input: Buffer.from(clearMaskSvg), top: 0, left: 0 }
     ])
     .png()
     .toBuffer();
 
-  // 4. Save to all PNG destinations
+  // 3. Save to all PNG destinations
   const pngDestinations = [
     path.resolve(__dirname, '../assets/clean_label_template.png'),
     path.resolve(__dirname, '../assets/VidhyutSaathi_Label_2x1.5in.png'),
@@ -63,7 +57,7 @@ async function deployExactMaster() {
     console.log('✓ Deployed PNG:', dest);
   }
 
-  // 5. Save to all JPEG destinations
+  // 4. Save to all JPEG destinations
   const jpegBuffer = await sharp(cleanTemplateBuffer)
     .jpeg({ quality: 98, chromaSubsampling: '4:4:4' })
     .toBuffer();
@@ -85,7 +79,7 @@ async function deployExactMaster() {
     console.log('✓ Deployed JPEG:', dest);
   }
 
-  console.log('\n✅ Full-height 2x1.5 inch master template deployed everywhere!');
+  console.log('\n✅ Master template successfully deployed everywhere!');
 }
 
 deployExactMaster().catch(console.error);
