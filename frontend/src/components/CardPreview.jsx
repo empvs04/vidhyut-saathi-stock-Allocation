@@ -89,15 +89,15 @@ export default function CardPreview({
         <div
           style={{
             position: 'absolute',
-            top: '63.1%',
-            left: '9.3%',
-            width: '81.4%',
-            height: '19.6%',
+            top: '56.3%',
+            left: '9.2%',
+            width: '81.6%',
+            height: '26.8%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'flex-start',
-            gap: '2px',
+            gap: '3px',
             pointerEvents: 'none',
             border: 'none',
             background: 'transparent',
@@ -108,7 +108,7 @@ export default function CardPreview({
             viewBox={`0 0 ${pattern.totalWidth} 40`}
             style={{
               width: '100%',
-              height: '69%',
+              height: '68%',
               shapeRendering: 'crispEdges',
               display: 'block',
             }}
@@ -128,7 +128,7 @@ export default function CardPreview({
           {/* Human Readable Serial Number below barcode matching uploaded image font */}
           <div
             style={{
-              fontSize: `${Math.max(9.5, width * 0.035)}px`,
+              fontSize: `${Math.max(10, width * 0.038)}px`,
               fontWeight: '800',
               fontFamily: "Arial, Helvetica, 'Segoe UI', sans-serif",
               color: '#000000',

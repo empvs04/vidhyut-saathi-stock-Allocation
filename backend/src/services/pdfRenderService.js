@@ -170,15 +170,16 @@ export async function renderBatchPDF({
             backgroundcolor: 'ffffff',
           });
 
-          // 3. Barcode section geometry — matching uploaded image proportions (1200x900 -> 144x108 pt)
+          // 3. Barcode section geometry — matching unstretched master template (1200x900 -> 144x108 pt)
           //    Scale factor: 144 / 1200 = 0.12 pt/px.
-          //    Barcode width: 976 px * 0.12 = 117.12 pt (tall & wide across container box)
-          //    Barcode height: 122 px * 0.12 = 14.64 pt
-          //    Barcode Y: 568 px * 0.12 = 68.16 pt
-          const bcW = 117.12;
-          const bcH = 14.64;
-          const bcX = pos.x + (pos.width - bcW) / 2;  // Exactly centered: 13.44 pt
-          const bcY = pos.y + 68.16;
+          //    Master template barcode box: boxY = 489 px (58.68 pt), boxH = 265 px (31.8 pt)
+          //    Barcode width: 980 px * 0.12 = 117.60 pt (centered: pos.x + 13.20 pt)
+          //    Barcode height: 165 px * 0.12 = 19.80 pt
+          //    Barcode Y: 507 px * 0.12 = 60.84 pt
+          const bcW = 117.60;
+          const bcH = 19.80;
+          const bcX = pos.x + 13.20;
+          const bcY = pos.y + 60.84;
 
           // 4. Draw barcode image (Code 128)
           doc.image(barcodePng, bcX, bcY, {
@@ -188,19 +189,19 @@ export async function renderBatchPDF({
           barcodeRenderCount++;
 
           // 5. Draw bold serial number below barcode matching uploaded image font & alignment
-          const serialFontSize = 7.0;
-          const textY = pos.y + 84.2;
+          const serialFontSize = 7.2;
+          const textY = pos.y + 82.8;
           doc
             .font('Helvetica-Bold')
             .fontSize(serialFontSize)
             .fillColor('#000000');
 
-          const textWidth = doc.widthOfString(serial, { characterSpacing: 0.5 });
+          const textWidth = doc.widthOfString(serial, { characterSpacing: 0.6 });
           const textX = pos.x + (pos.width - textWidth) / 2;
 
           doc.text(serial, textX, textY, {
             lineBreak: false,
-            characterSpacing: 0.5,
+            characterSpacing: 0.6,
           });
           serialRenderCount++;
 
@@ -291,34 +292,11 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = '') {
   });
 
   // 3. Barcode section geometry (label is 144 x 108 pt = 2.00" x 1.50")
-  const cornerR = 2.8;
-  const bcW     = 104.0;
-  const bcH     = 9.2;
-  const bcX     = (144 - bcW) / 2;
-
-  // ── ROUNDED BORDER BOX — positioned in clean white area ──────
-  const boxPadX = 4.0;
-  const boxX    = (144 - bcW - boxPadX * 2) / 2;
-  const boxW    = bcW + boxPadX * 2;
-  const boxY    = 65.0;
-  const boxH    = 26.0;
-
-  // White fill with rounded corners
-  doc
-    .roundedRect(boxX, boxY, boxW, boxH, cornerR)
-    .fillColor('#FFFFFF')
-    .fill();
-
-  // Rounded border stroke (all 4 borders & rounded corners fully visible)
-  doc
-    .roundedRect(boxX, boxY, boxW, boxH, cornerR)
-    .lineWidth(0.6)
-    .strokeColor('#222222')
-    .stroke();
-
-  // ── CONTENT — moved down with clean top breathing space ───────────────
-  const innerTopPad = 4.2;
-  const bcY  = boxY + innerTopPad;
+  //    Template already contains the single crisp rounded rectangle barcode box.
+  const bcW = 117.60;
+  const bcH = 19.80;
+  const bcX = (144 - bcW) / 2; // 13.20 pt
+  const bcY = 60.84;
 
   // 4. Draw barcode
   doc.image(barcodePng, bcX, bcY, {
@@ -326,17 +304,20 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = '') {
     height: bcH,
   });
 
-  // 5. Draw serial number with increased breathing space from barcode
-  const textY = bcY + bcH + 2.8;
+  // 5. Draw bold serial number below barcode
+  const textY = 82.8;
   doc
-    .font('Courier-Bold')
-    .fontSize(6.2)
-    .fillColor('#000000')
-    .text(String(serialNumber), boxX, textY, {
-      width: boxW,
-      align: 'center',
-      characterSpacing: 0.8,
-    });
+    .font('Helvetica-Bold')
+    .fontSize(7.2)
+    .fillColor('#000000');
+
+  const textWidth = doc.widthOfString(String(serialNumber), { characterSpacing: 0.6 });
+  const textX = (144 - textWidth) / 2;
+
+  doc.text(String(serialNumber), textX, textY, {
+    lineBreak: false,
+    characterSpacing: 0.6,
+  });
 
   doc.end();
   return doc;
@@ -429,10 +410,10 @@ export async function renderCalibrationTestPDF(sampleSerial = '0020231501') {
     paddingheight: 0,
   });
 
-  const bcW = 100.0;
-  const bcH = 9.5;
-  const bcX = labelX + (144 - bcW) / 2;
-  const bcY = labelY + 73.2;
+  const bcW = 117.60;
+  const bcH = 19.80;
+  const bcX = labelX + 13.20;
+  const bcY = labelY + 60.84;
 
   doc.image(barcodePng, bcX, bcY, {
     width: bcW,
@@ -440,16 +421,19 @@ export async function renderCalibrationTestPDF(sampleSerial = '0020231501') {
   });
 
   // Serial text below barcode
-  const textY = labelY + 85.8;
+  const textY = labelY + 82.8;
   doc
-    .font('Courier-Bold')
-    .fontSize(6.2)
-    .fillColor('#000000')
-    .text(String(sampleSerial), labelX, textY, {
-      width: 144,
-      align: 'center',
-      characterSpacing: 0.8,
-    });
+    .font('Helvetica-Bold')
+    .fontSize(7.2)
+    .fillColor('#000000');
+
+  const textWidth = doc.widthOfString(String(sampleSerial), { characterSpacing: 0.6 });
+  const textX = labelX + (144 - textWidth) / 2;
+
+  doc.text(String(sampleSerial), textX, textY, {
+    lineBreak: false,
+    characterSpacing: 0.6,
+  });
 
   // Dimension Callouts for Label
   doc
