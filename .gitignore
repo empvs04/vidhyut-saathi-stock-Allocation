@@ -25,6 +25,9 @@ backend/storage/pdfs/*.pdf
 !backend/storage/pdfs/.gitkeep
 backend/storage/templates/*.pdf
 !backend/storage/templates/.gitkeep
+backend/storage/*.png
+backend/storage/*.pdf
+backend/storage/test_outputs/
 
 # Editor & OS files
 .vscode/
