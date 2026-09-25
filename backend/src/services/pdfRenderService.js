@@ -162,68 +162,45 @@ export async function renderBatchPDF({
 
           // 2. Generate high-resolution Code 128 Barcode for this serial
           const barcodePng = await generateBarcodeBuffer(serial, {
-            scale: 3,
-            height: 8,
+            scale: 4,
+            height: 12,
             includetext: false,
             paddingwidth: 0,
             paddingheight: 0,
+            backgroundcolor: 'ffffff',
           });
 
-          // 3. Barcode section geometry — all relative to pos (label top-left corner)
-          //    Label is exactly 144 x 108 pt (2.00" x 1.50"). Barcode area is in the lower white strip (63.7pt to 92.0pt).
-          const bcW = 104.0;       // barcode image width
-          const bcH = 9.2;         // barcode image height
-          const bcX = pos.x + (pos.width - bcW) / 2;  // horizontally centered
+          // 3. Barcode section geometry — matching uploaded image proportions (1200x900 -> 144x108 pt)
+          //    Scale factor: 144 / 1200 = 0.12 pt/px.
+          //    Barcode width: 976 px * 0.12 = 117.12 pt (tall & wide across container box)
+          //    Barcode height: 122 px * 0.12 = 14.64 pt
+          //    Barcode Y: 568 px * 0.12 = 68.16 pt
+          const bcW = 117.12;
+          const bcH = 14.64;
+          const bcX = pos.x + (pos.width - bcW) / 2;  // Exactly centered: 13.44 pt
+          const bcY = pos.y + 68.16;
 
-          // ── ROUNDED BORDER BOX — perfectly positioned in white area ──────
-          const cornerR  = 2.8;    // smooth rounded corner radius
-          const boxPadX  = 4.0;    // horizontal inner padding
-          const boxX     = pos.x + (pos.width - bcW - boxPadX * 2) / 2;
-          const boxW     = bcW + boxPadX * 2;
-          const boxY     = pos.y + 65.0;   // Clean gap below warranty boxes
-          const boxH     = 26.0;           // Clean gap above black footer
-
-          // Draw white fill with rounded corners
-          doc
-            .roundedRect(boxX, boxY, boxW, boxH, cornerR)
-            .fillColor('#FFFFFF')
-            .fill();
-
-          // Draw rounded border stroke (all 4 borders & rounded corners fully visible)
-          doc
-            .roundedRect(boxX, boxY, boxW, boxH, cornerR)
-            .lineWidth(0.6)
-            .strokeColor('#222222')
-            .stroke();
-
-          // ── CONTENT inside box — balanced vertical layout with clean gap between barcode & serial ───────
-          const innerTopPad = 4.2;           // Balanced space above barcode
-          const bcY  = boxY + innerTopPad;   // Barcode starts cleanly
-          const serialFontSize = 6.2;
-
-          // 4. Draw barcode image inside the rounded box (horizontally centered)
-          const barcodeBoxCenterX = boxX + boxW / 2;
-          const centeredBcX = barcodeBoxCenterX - bcW / 2;
-
-          doc.image(barcodePng, centeredBcX, bcY, {
+          // 4. Draw barcode image (Code 128)
+          doc.image(barcodePng, bcX, bcY, {
             width: bcW,
             height: bcH,
           });
           barcodeRenderCount++;
 
-          // 5. Draw serial number below barcode with increased breathing space
-          const textY = bcY + bcH + 2.8;
+          // 5. Draw bold serial number below barcode matching uploaded image font & alignment
+          const serialFontSize = 7.0;
+          const textY = pos.y + 84.2;
           doc
-            .font('Courier-Bold')
+            .font('Helvetica-Bold')
             .fontSize(serialFontSize)
             .fillColor('#000000');
 
-          const textWidth = doc.widthOfString(serial, { characterSpacing: 0.8 });
-          const textX = barcodeBoxCenterX - textWidth / 2;
+          const textWidth = doc.widthOfString(serial, { characterSpacing: 0.5 });
+          const textX = pos.x + (pos.width - textWidth) / 2;
 
           doc.text(serial, textX, textY, {
             lineBreak: false,
-            characterSpacing: 0.8,
+            characterSpacing: 0.5,
           });
           serialRenderCount++;
 

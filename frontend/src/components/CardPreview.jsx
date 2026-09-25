@@ -89,26 +89,26 @@ export default function CardPreview({
         <div
           style={{
             position: 'absolute',
-            top: '67.8%',
-            left: '15%',
-            width: '70%',
-            height: '21.5%',
+            top: '63.1%',
+            left: '9.3%',
+            width: '81.4%',
+            height: '19.6%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'flex-start',
-            gap: '5.5px',
+            gap: '2px',
             pointerEvents: 'none',
             border: 'none',
             background: 'transparent',
           }}
         >
-          {/* Barcode Bars SVG (Centered, not too tall or wide) */}
+          {/* Barcode Bars SVG (Code 128 - Wide & Tall matching uploaded image) */}
           <svg
             viewBox={`0 0 ${pattern.totalWidth} 40`}
             style={{
               width: '100%',
-              height: '46%',
+              height: '69%',
               shapeRendering: 'crispEdges',
               display: 'block',
             }}
@@ -125,14 +125,14 @@ export default function CardPreview({
             ))}
           </svg>
 
-          {/* Human Readable Serial Number below barcode in single line */}
+          {/* Human Readable Serial Number below barcode matching uploaded image font */}
           <div
             style={{
-              fontSize: `${Math.max(8.5, width * 0.029)}px`,
-              fontWeight: '700',
-              fontFamily: "'Courier New', 'Courier', monospace",
+              fontSize: `${Math.max(9.5, width * 0.035)}px`,
+              fontWeight: '800',
+              fontFamily: "Arial, Helvetica, 'Segoe UI', sans-serif",
               color: '#000000',
-              letterSpacing: '1.0px',
+              letterSpacing: '0.8px',
               lineHeight: '1',
               textAlign: 'center',
               whiteSpace: 'nowrap',

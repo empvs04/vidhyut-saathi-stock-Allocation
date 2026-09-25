@@ -9,42 +9,43 @@ const __dirname = path.dirname(__filename);
 
 async function testFinalRenderedLabel() {
   const masterPath = path.resolve(__dirname, '../../../VidhyutSaathi_Label_2x1.5in.png');
-  const serial = '0020231501';
+  const serial = 'VS000001';
 
-  // Generate barcode buffer
+  // 1. Generate high-resolution Code 128 barcode buffer
   const barcodePng = await generateBarcodeBuffer(serial, {
-    scale: 3,
+    scale: 4,
     height: 12,
     includetext: false,
     paddingwidth: 0,
     paddingheight: 0,
+    backgroundcolor: 'ffffff',
   });
 
-  // Master is 1200 x 900
-  // In the template, the barcode box outline is:
-  // top: 548, bottom: 767, left: 36, right: 1164
-  // We place the barcode cleanly inside this box:
-  // Barcode width ~860, height ~100, centered horizontally
-  // Serial number centered below barcode
+  // 2. Barcode geometry in 1200x900 pixel coordinates:
+  //    Matches user uploaded master image proportions
   const barcodeResized = await sharp(barcodePng)
-    .resize(870, 95, { fit: 'fill' })
+    .resize(976, 122, { fit: 'fill' })
     .toBuffer();
 
   const serialSvg = Buffer.from(`
     <svg width="1200" height="900" xmlns="http://www.w3.org/2000/svg">
-      <text x="600" y="738" 
-            font-family="'Arial Black', Arial, 'Segoe UI', sans-serif" 
-            font-weight="900" 
-            font-size="52" 
-            fill="#000000" 
-            letter-spacing="2" 
-            text-anchor="middle">${serial}</text>
+      <style>
+        .serial-text {
+          font-family: Arial, Helvetica, 'Segoe UI', sans-serif;
+          font-weight: 800;
+          font-size: 43px;
+          fill: #000000;
+          text-anchor: middle;
+          letter-spacing: 0.8px;
+        }
+      </style>
+      <text x="600" y="731" class="serial-text">${serial}</text>
     </svg>
   `);
 
   const compositeResult = await sharp(masterPath)
     .composite([
-      { input: barcodeResized, top: 575, left: (1200 - 870) / 2 },
+      { input: barcodeResized, top: 568, left: 112 },
       { input: serialSvg, top: 0, left: 0 }
     ])
     .png()
