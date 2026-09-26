@@ -31,11 +31,17 @@ async function buildMasterTemplateV4() {
     .resize(targetW, cardsH, { kernel: 'lanczos3' })
     .toBuffer();
 
-  // 3. Footer Section (Black bar with globe, URL, tagline & bottom rounded corners):
+  // 3. Footer Section (100% UNSTRETCHED natural 1:1 ratio, globe and text in natural proportions):
   //    y: 654 to 712 (height: 58)
   const footerCrop = await sharp(masterSource)
     .extract({ left: 8, top: 654, width: 1008, height: 58 })
     .toBuffer();
+  const footerH = Math.round(58 * S); // 68 px
+  const resizedFooter = await sharp(footerCrop)
+    .resize(targetW, footerH, { kernel: 'lanczos3' }) // 1:1 unstretched
+    .toBuffer();
+
+  const footerY = 888 - footerH; // 820 px
 
   // Positions:
   const topY = 12;
@@ -43,30 +49,27 @@ async function buildMasterTemplateV4() {
   const cardsY = topY + topH + gap1; // 12 + 300 + 12 = 324
   const cardsBottom = cardsY + cardsH; // 324 + 155 = 479
 
-  // Company Name & Barcode Box:
-  const companyNameY = 516; // Perfectly centered between cardsBottom (479) and boxY (540)
+  // Company Name (Centered between cardsBottom 479 and boxY 540)
+  const companyNameY = 516;
+
+  // Barcode Box:
   const boxY = 540;
-  const boxH = 216;
+  const gap3 = 14;
+  const boxH = footerY - gap3 - boxY; // 820 - 14 - 540 = 266 px
   const boxW = 1144;
   const boxX = (W - boxW) / 2; // 28
 
-  const gap3 = 12;
-  const footerY = boxY + boxH + gap3; // 540 + 216 + 12 = 768
-  const footerH = 888 - footerY; // 120 px
-
-  const resizedFooter = await sharp(footerCrop)
-    .resize(targetW, footerH, { fit: 'fill', kernel: 'lanczos3' })
-    .toBuffer();
-
-  // SVG for border bands, barcode box, and company name text
+  // SVG for border bands, barcode box, and company name text (BOLDER)
   const vectorSvg = `
     <svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
       <style>
         .company-name {
           font-family: Arial, Helvetica, 'Segoe UI', sans-serif;
-          font-weight: 800;
+          font-weight: 900;
           font-size: 27px;
           fill: #000000;
+          stroke: #000000;
+          stroke-width: 0.6px;
           text-anchor: middle;
           letter-spacing: 1.8px;
         }
@@ -76,7 +79,7 @@ async function buildMasterTemplateV4() {
       <rect x="12" y="60" width="9.5" height="${footerY + 20 - 60}" fill="#000000"/>
       <rect x="1178.5" y="60" width="9.5" height="${footerY + 20 - 60}" fill="#000000"/>
 
-      <!-- Company Name Text Line below cards -->
+      <!-- Company Name Text Line below cards (BOLDER) -->
       <text x="${W / 2}" y="${companyNameY}" class="company-name">VIDHYUT SAATHI ENERGY SAVERS PVT. LTD.</text>
 
       <!-- Barcode Container Box (Single crisp rounded rectangle with pure white interior) -->
@@ -101,7 +104,7 @@ async function buildMasterTemplateV4() {
       { input: resizedTop, top: topY, left: leftX },
       // Piece 2: Cards section (10 YEARS & 3 YEARS)
       { input: resizedCards, top: cardsY, left: leftX },
-      // Piece 3: Footer bar (Black footer)
+      // Piece 3: Footer bar (Unstretched natural footer)
       { input: resizedFooter, top: footerY, left: leftX },
       // Seamless side border lines, Company Name, and Barcode box outline
       { input: Buffer.from(vectorSvg), top: 0, left: 0 },
@@ -111,7 +114,7 @@ async function buildMasterTemplateV4() {
 
   const outTest = 'C:/Users/USER/.gemini/antigravity-ide/brain/90614fe4-6c73-492e-b82c-0606b444be32/scratch/inspect_master_v4.png';
   await sharp(composited).toFile(outTest);
-  console.log('Saved inspect_master_v4.png with Company Name line');
+  console.log('Saved inspect_master_v4.png with bold company name & unstretched footer');
 }
 
 buildMasterTemplateV4().catch(console.error);
