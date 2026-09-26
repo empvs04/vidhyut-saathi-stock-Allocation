@@ -78,7 +78,7 @@ async function buildMasterTemplateV4() {
       <!-- Clean gutters to eliminate any jagged/cut scan artifacts along straight borders -->
       <rect x="0" y="65" width="12" height="${footerY - 65}" fill="#FFFFFF"/>
       <rect x="22" y="65" width="19" height="${footerY - 65}" fill="#FFFFFF"/>
-      <rect x="1159" y="65" width="17" height="${footerY - 65}" fill="#FFFFFF"/>
+      <rect x="1162" y="65" width="13.5" height="${footerY - 65}" fill="#FFFFFF"/>
       <rect x="1187.5" y="65" width="12.5" height="${footerY - 65}" fill="#FFFFFF"/>
 
       <!-- 100% Solid, uniform Left and Right outer borders with zero notches or cuts -->
@@ -87,10 +87,6 @@ async function buildMasterTemplateV4() {
 
       <!-- Company Name Text Line below cards (BOLDER) -->
       <text x="${W / 2}" y="${companyNameY}" class="company-name">VIDHYUT SAATHI ENERGY SAVERS PVT. LTD.</text>
-
-      <!-- MRP Box Right Border: Darkened to match the other 3 borders perfectly -->
-      <path d="M 1130 45.5 C 1148 45.5 1157.5 57 1157.5 74 L 1157.5 280 C 1157.5 297 1148 307.5 1130 307.5"
-            fill="none" stroke="#000000" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
 
       <!-- Barcode Container Box (Single crisp rounded rectangle with pure white interior) -->
       <rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="14"
@@ -122,8 +118,38 @@ async function buildMasterTemplateV4() {
     .png()
     .toBuffer();
 
+  // Darken MRP right border to match the darkness, curvature, and weight of the other 3 borders
+  let { data, info } = await sharp(composited).raw().toBuffer({ resolveWithObject: true });
+  for (let y = 44; y <= 308; y++) {
+    for (let x = 1145; x <= 1161; x++) {
+      const idx = (y * W + x) * info.channels;
+      const avg = (data[idx] + data[idx+1] + data[idx+2]) / 3;
+      if (avg > 0 && avg < 150) {
+        const factor = Math.pow(avg / 150, 2.0);
+        const newV = Math.round(avg * factor);
+        data[idx] = newV;
+        data[idx+1] = newV;
+        data[idx+2] = newV;
+      }
+    }
+  }
+  for (let y = 68; y <= 286; y++) {
+    for (let x = 1157; x <= 1159; x++) {
+      const idx = (y * W + x) * info.channels;
+      if (data[idx] < 180) {
+        data[idx] = 0;
+        data[idx+1] = 0;
+        data[idx+2] = 0;
+      }
+    }
+  }
+
+  const finalTemplate = await sharp(data, { raw: { width: info.width, height: info.height, channels: info.channels } })
+    .png()
+    .toBuffer();
+
   const outTest = 'C:/Users/USER/.gemini/antigravity-ide/brain/90614fe4-6c73-492e-b82c-0606b444be32/scratch/inspect_master_v4.png';
-  await sharp(composited).toFile(outTest);
+  await sharp(finalTemplate).toFile(outTest);
   console.log('Saved inspect_master_v4.png with bold company name & unstretched footer');
 }
 
