@@ -3,9 +3,14 @@ import fs from 'fs';
 import path from 'path';
 import bwipjs from 'bwip-js';
 
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 async function testBarcodeRenderFine() {
-  const serial = 'VS000001';
-  const templatePath = 'C:/Users/USER/.gemini/antigravity-ide/brain/90614fe4-6c73-492e-b82c-0606b444be32/scratch/inspect_clean_template.png';
+  const serial = '0020231501';
+  const templatePath = path.resolve(__dirname, '../assets/clean_label_template.png');
 
   const barcodePng = await new Promise((resolve, reject) => {
     bwipjs.toBuffer({
