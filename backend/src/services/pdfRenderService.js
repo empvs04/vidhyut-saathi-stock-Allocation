@@ -172,14 +172,14 @@ export async function renderBatchPDF({
 
           // 3. Barcode section geometry — matching unstretched master template (1200x900 -> 144x108 pt)
           //    Scale factor: 144 / 1200 = 0.12 pt/px.
-          //    Master template barcode box: boxY = 489 px (58.68 pt), boxH = 265 px (31.8 pt)
+          //    Master template barcode box: boxY = 540 px (64.80 pt), boxH = 216 px (25.92 pt)
           //    Barcode width: 980 px * 0.12 = 117.60 pt (centered: pos.x + 13.20 pt)
-          //    Barcode height: 165 px * 0.12 = 19.80 pt
-          //    Barcode Y: 507 px * 0.12 = 60.84 pt
+          //    Barcode height: 136 px * 0.12 = 16.32 pt
+          //    Barcode Y: 556 px * 0.12 = 66.72 pt
           const bcW = 117.60;
-          const bcH = 19.80;
+          const bcH = 16.32;
           const bcX = pos.x + 13.20;
-          const bcY = pos.y + 60.84;
+          const bcY = pos.y + 66.72;
 
           // 4. Draw barcode image (Code 128)
           doc.image(barcodePng, bcX, bcY, {
@@ -189,8 +189,8 @@ export async function renderBatchPDF({
           barcodeRenderCount++;
 
           // 5. Draw bold serial number below barcode matching uploaded image font & alignment
-          const serialFontSize = 7.2;
-          const textY = pos.y + 82.8;
+          const serialFontSize = 7.0;
+          const textY = pos.y + 83.2;
           doc
             .font('Helvetica-Bold')
             .fontSize(serialFontSize)
@@ -294,9 +294,9 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = '') {
   // 3. Barcode section geometry (label is 144 x 108 pt = 2.00" x 1.50")
   //    Template already contains the single crisp rounded rectangle barcode box.
   const bcW = 117.60;
-  const bcH = 19.80;
+  const bcH = 16.32;
   const bcX = (144 - bcW) / 2; // 13.20 pt
-  const bcY = 60.84;
+  const bcY = 66.72;
 
   // 4. Draw barcode
   doc.image(barcodePng, bcX, bcY, {
@@ -305,10 +305,10 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = '') {
   });
 
   // 5. Draw bold serial number below barcode
-  const textY = 82.8;
+  const textY = 83.2;
   doc
     .font('Helvetica-Bold')
-    .fontSize(7.2)
+    .fontSize(7.0)
     .fillColor('#000000');
 
   const textWidth = doc.widthOfString(String(serialNumber), { characterSpacing: 0.6 });
@@ -411,9 +411,9 @@ export async function renderCalibrationTestPDF(sampleSerial = '0020231501') {
   });
 
   const bcW = 117.60;
-  const bcH = 19.80;
+  const bcH = 16.32;
   const bcX = labelX + 13.20;
-  const bcY = labelY + 60.84;
+  const bcY = labelY + 66.72;
 
   doc.image(barcodePng, bcX, bcY, {
     width: bcW,
@@ -421,10 +421,10 @@ export async function renderCalibrationTestPDF(sampleSerial = '0020231501') {
   });
 
   // Serial text below barcode
-  const textY = labelY + 82.8;
+  const textY = labelY + 83.2;
   doc
     .font('Helvetica-Bold')
-    .fontSize(7.2)
+    .fontSize(7.0)
     .fillColor('#000000');
 
   const textWidth = doc.widthOfString(String(sampleSerial), { characterSpacing: 0.6 });

@@ -89,10 +89,10 @@ export default function CardPreview({
         <div
           style={{
             position: 'absolute',
-            top: '56.3%',
+            top: '61.8%',
             left: '9.2%',
             width: '81.6%',
-            height: '26.8%',
+            height: '21.0%',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -128,7 +128,7 @@ export default function CardPreview({
           {/* Human Readable Serial Number below barcode matching uploaded image font */}
           <div
             style={{
-              fontSize: `${Math.max(10, width * 0.038)}px`,
+              fontSize: `${Math.max(9.5, width * 0.035)}px`,
               fontWeight: '800',
               fontFamily: "Arial, Helvetica, 'Segoe UI', sans-serif",
               color: '#000000',

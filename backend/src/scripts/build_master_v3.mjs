@@ -11,63 +11,73 @@ async function buildMasterTemplateV4() {
   const leftX = 12;
   const S = targetW / 1008; // 1.166667
 
-  // 1. Top Section (Includes top outer border, Logo, MRP box):
-  //    y: 59 to 301 (height: 243)
+  // 1. Top Section (Includes top outer border, Logo, Hindi tagline, MRP box with full bottom border):
+  //    y: 59 to 316 (height: 257)
   const topCrop = await sharp(masterSource)
-    .extract({ left: 8, top: 59, width: 1008, height: 243 })
+    .extract({ left: 8, top: 59, width: 1008, height: 257 })
     .toBuffer();
-
-  const topH = Math.round(243 * S); // 283 px
+  const topH = Math.round(257 * S); // 300 px
   const resizedTop = await sharp(topCrop)
     .resize(targetW, topH, { kernel: 'lanczos3' })
     .toBuffer();
 
-  // 2. Cards Section (10 YEARS & 3 YEARS with authentic single borders):
-  //    y: 323 to 444 (height: 121)
+  // 2. Cards Section (10 YEARS & 3 YEARS with full top AND bottom single borders intact):
+  //    y: 323 to 456 (height: 133)
   const cardsCrop = await sharp(masterSource)
-    .extract({ left: 8, top: 323, width: 1008, height: 121 })
+    .extract({ left: 8, top: 323, width: 1008, height: 133 })
     .toBuffer();
-
-  const cardsH = Math.round(121 * S); // 141 px
+  const cardsH = Math.round(133 * S); // 155 px
   const resizedCards = await sharp(cardsCrop)
     .resize(targetW, cardsH, { kernel: 'lanczos3' })
     .toBuffer();
 
   // 3. Footer Section (Black bar with globe, URL, tagline & bottom rounded corners):
-  //    y: 655 to 712 (height: 58)
+  //    y: 654 to 712 (height: 58)
   const footerCrop = await sharp(masterSource)
-    .extract({ left: 8, top: 655, width: 1008, height: 58 })
+    .extract({ left: 8, top: 654, width: 1008, height: 58 })
     .toBuffer();
 
-  // Layout positions:
+  // Positions:
   const topY = 12;
-  const gap1 = 25; // Clean gap above cards
-  const cardsY = topY + topH + gap1; // 12 + 283 + 25 = 320
+  const gap1 = 12; // Gap between Top header and Cards
+  const cardsY = topY + topH + gap1; // 12 + 300 + 12 = 324
+  const cardsBottom = cardsY + cardsH; // 324 + 155 = 479
 
-  const gap2 = 28; // Clean gap below cards
-  const boxY = cardsY + cardsH + gap2; // 320 + 141 + 28 = 489
-  const boxH = 265; // Barcode box height
+  // Company Name & Barcode Box:
+  const companyNameY = 516; // Perfectly centered between cardsBottom (479) and boxY (540)
+  const boxY = 540;
+  const boxH = 216;
   const boxW = 1144;
   const boxX = (W - boxW) / 2; // 28
 
-  const gap3 = 14;
-  const footerY = boxY + boxH + gap3; // 489 + 265 + 14 = 768
+  const gap3 = 12;
+  const footerY = boxY + boxH + gap3; // 540 + 216 + 12 = 768
   const footerH = 888 - footerY; // 120 px
 
   const resizedFooter = await sharp(footerCrop)
     .resize(targetW, footerH, { fit: 'fill', kernel: 'lanczos3' })
     .toBuffer();
 
-  // Left & right border coordinates:
-  // In resizedTop (width 1176), left border starts at 0, thickness is ~9.5px.
-  // With leftX = 12, global x is 12 to 21.5.
-  // Right border is at 1176 - 9.5 = 1166.5. With leftX = 12, global x is 1178.5 to 1188.
-  // The straight part runs from y = 60 to footerY + 20.
+  // SVG for border bands, barcode box, and company name text
   const vectorSvg = `
     <svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+      <style>
+        .company-name {
+          font-family: Arial, Helvetica, 'Segoe UI', sans-serif;
+          font-weight: 800;
+          font-size: 27px;
+          fill: #000000;
+          text-anchor: middle;
+          letter-spacing: 1.8px;
+        }
+      </style>
+
       <!-- Seamless Left and Right outer border bands matching straight section -->
       <rect x="12" y="60" width="9.5" height="${footerY + 20 - 60}" fill="#000000"/>
       <rect x="1178.5" y="60" width="9.5" height="${footerY + 20 - 60}" fill="#000000"/>
+
+      <!-- Company Name Text Line below cards -->
+      <text x="${W / 2}" y="${companyNameY}" class="company-name">VIDHYUT SAATHI ENERGY SAVERS PVT. LTD.</text>
 
       <!-- Barcode Container Box (Single crisp rounded rectangle with pure white interior) -->
       <rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="14"
@@ -93,7 +103,7 @@ async function buildMasterTemplateV4() {
       { input: resizedCards, top: cardsY, left: leftX },
       // Piece 3: Footer bar (Black footer)
       { input: resizedFooter, top: footerY, left: leftX },
-      // Seamless side border lines & Barcode box outline
+      // Seamless side border lines, Company Name, and Barcode box outline
       { input: Buffer.from(vectorSvg), top: 0, left: 0 },
     ])
     .png()
@@ -101,7 +111,7 @@ async function buildMasterTemplateV4() {
 
   const outTest = 'C:/Users/USER/.gemini/antigravity-ide/brain/90614fe4-6c73-492e-b82c-0606b444be32/scratch/inspect_master_v4.png';
   await sharp(composited).toFile(outTest);
-  console.log('Saved inspect_master_v4.png');
+  console.log('Saved inspect_master_v4.png with Company Name line');
 }
 
 buildMasterTemplateV4().catch(console.error);
