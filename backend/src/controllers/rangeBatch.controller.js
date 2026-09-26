@@ -175,7 +175,7 @@ export async function createRangeBatch(req, res) {
       createdAt: new Date().toISOString(),
     };
 
-    const savedBatch = await DataStore.saveBatch(batchRecord);
+    const savedBatch = await DataStore.createBatch(batchRecord);
 
     return res.status(201).json({
       success: true,
@@ -203,8 +203,9 @@ export async function createRangeBatch(req, res) {
  */
 export async function getRangeBatches(req, res) {
   try {
-    const batches = await DataStore.getBatches();
-    const rangeBatches = (batches || []).filter(b => b.batchType === 'range' || b.batchId?.startsWith('RANGE-'));
+    const result = await DataStore.findBatches({});
+    const allBatches = result.batches || [];
+    const rangeBatches = allBatches.filter(b => b.batchType === 'range' || (b.batchId && b.batchId.startsWith('RANGE-')));
     return res.status(200).json({
       success: true,
       batches: rangeBatches,
