@@ -52,12 +52,12 @@ async function buildMasterTemplateV4() {
   // Company Name (Centered between cardsBottom 479 and boxY 540)
   const companyNameY = 516;
 
-  // Barcode Box:
+  // Barcode Box (Left & Right margins exactly matching the cards above: x = 42 to 1158)
   const boxY = 540;
   const gap3 = 14;
   const boxH = footerY - gap3 - boxY; // 820 - 14 - 540 = 266 px
-  const boxW = 1144;
-  const boxX = (W - boxW) / 2; // 28
+  const boxX = 42;
+  const boxW = 1116; // 1200 - 42 - 42 = 1116 px
 
   // SVG for border bands, barcode box, and company name text (BOLDER)
   const vectorSvg = `
