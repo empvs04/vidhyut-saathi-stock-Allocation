@@ -89,7 +89,7 @@ export default function CardPreview({
         <div
           style={{
             position: 'absolute',
-            top: '61.6%',
+            top: '61.4%',
             left: '9.2%',
             width: '81.6%',
             height: '21.0%',
@@ -97,7 +97,7 @@ export default function CardPreview({
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'flex-start',
-            gap: '6px',
+            gap: '8px',
             pointerEvents: 'none',
             border: 'none',
             background: 'transparent',
@@ -108,7 +108,7 @@ export default function CardPreview({
             viewBox={`0 0 ${pattern.totalWidth} 40`}
             style={{
               width: '100%',
-              height: '60%',
+              height: '57%',
               shapeRendering: 'crispEdges',
               display: 'block',
             }}
