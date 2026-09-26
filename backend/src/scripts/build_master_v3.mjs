@@ -118,22 +118,9 @@ async function buildMasterTemplateV4() {
     .png()
     .toBuffer();
 
-  // Darken MRP right border to match the darkness, curvature, and weight of the other 3 borders
+  // Make the straight right vertical border of the MRP box (y=72..282, x=1157..1159) solid dark
   let { data, info } = await sharp(composited).raw().toBuffer({ resolveWithObject: true });
-  for (let y = 44; y <= 308; y++) {
-    for (let x = 1145; x <= 1161; x++) {
-      const idx = (y * W + x) * info.channels;
-      const avg = (data[idx] + data[idx+1] + data[idx+2]) / 3;
-      if (avg > 0 && avg < 150) {
-        const factor = Math.pow(avg / 150, 2.0);
-        const newV = Math.round(avg * factor);
-        data[idx] = newV;
-        data[idx+1] = newV;
-        data[idx+2] = newV;
-      }
-    }
-  }
-  for (let y = 68; y <= 286; y++) {
+  for (let y = 72; y <= 282; y++) {
     for (let x = 1157; x <= 1159; x++) {
       const idx = (y * W + x) * info.channels;
       if (data[idx] < 180) {
