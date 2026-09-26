@@ -137,10 +137,10 @@ export async function validateImportedSerials(req, res) {
     const cleanSerials = serials.map((s) => String(s).trim()).filter(Boolean);
     const count = cleanSerials.length;
 
-    if (count > 10000) {
+    if (count > 50000) {
       return res.status(400).json({
         success: false,
-        message: 'Excel file contains too many labels. Maximum allowed is 10,000 per batch.',
+        message: 'Excel file contains too many labels. Maximum allowed is 50,000 per batch.',
       });
     }
 
@@ -271,10 +271,10 @@ export async function createBatch(req, res) {
       }
 
       count = parseInt(quantity, 10);
-      if (count < 1 || count > 10000) {
+      if (count < 1 || count > 50000) {
         return res.status(400).json({
           success: false,
-          message: 'Quantity must be between 1 and 10,000 labels per batch.',
+          message: 'Quantity must be between 1 and 50,000 labels per batch.',
         });
       }
 

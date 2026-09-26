@@ -16,6 +16,7 @@ import {
   FileText,
   Table,
   X,
+  Layers,
 } from 'lucide-react';
 import { BatchesAPI, TemplatesAPI, RecordsAPI } from '../services/api';
 import SheetPreview from '../components/SheetPreview';
@@ -1246,14 +1247,47 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                     <input
                       type="number"
                       min="1"
-                      max="10000"
+                      max="50000"
                       className="form-input"
                       required
                       value={quantity}
                       onChange={(e) => setQuantity(e.target.value)}
                     />
-                    <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '3px' }}>
-                      Will create <strong>{calculatedPages} PDF Page{calculatedPages > 1 ? 's' : ''}</strong> ({currentPreset.labelsPerSheet} labels/sheet • {currentPreset.name}).
+                    {/* Live Pages & Labels Calculation Badge */}
+                    <div
+                      style={{
+                        marginTop: '8px',
+                        padding: '10px 14px',
+                        backgroundColor: '#f0f7ff',
+                        border: '1.5px solid #bae0fd',
+                        borderRadius: '10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Layers size={18} color="#0066cc" />
+                        <div>
+                          <div style={{ fontSize: '10.5px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                            PDF Output
+                          </div>
+                          <div style={{ fontSize: '16px', fontWeight: '800', color: '#0066cc', lineHeight: 1.2 }}>
+                            {calculatedPages} PDF {calculatedPages === 1 ? 'Page' : 'Pages'}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: '10.5px', color: '#64748b', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                          Command Total
+                        </div>
+                        <div style={{ fontSize: '13.5px', fontWeight: '700', color: '#0f172a' }}>
+                          {parseInt(quantity || 0, 10).toLocaleString()} Labels
+                          <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: '500', marginLeft: '4px' }}>
+                            ({currentPreset.labelsPerSheet}/sheet)
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </>
@@ -1434,8 +1468,8 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                   <label className="form-label" style={{ margin: 0, fontWeight: '700' }}>
                     📄 Sheet / Page Size
                   </label>
-                  <span className="badge badge-primary" style={{ fontSize: '11px' }}>
-                    {currentPreset.labelsPerSheet} Labels/Sheet
+                  <span className="badge badge-primary" style={{ fontSize: '11px', fontWeight: '700', padding: '2px 8px' }}>
+                    {calculatedPages} {calculatedPages === 1 ? 'Page' : 'Pages'} • {currentPreset.labelsPerSheet} Labels/Sheet
                   </span>
                 </div>
                 <select
@@ -1518,29 +1552,78 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
               ) : validationResult ? (
                 <div
                   style={{
-                    padding: '10px 12px',
+                    padding: '12px 14px',
                     backgroundColor: '#f0fdf4',
-                    border: '1px solid #bbf7d0',
-                    borderRadius: '8px',
+                    border: '1.5px solid #86efac',
+                    borderRadius: '10px',
                     fontSize: '12.5px',
                     color: '#166534',
                     display: 'flex',
-                    alignItems: 'center',
+                    flexDirection: 'column',
                     gap: '8px',
                     marginBottom: '12px',
+                    boxShadow: '0 1px 2px rgba(16, 185, 129, 0.06)',
                   }}
                 >
-                  <CheckCircle size={16} color="#16a34a" />
-                  <div>
-                    {inputMode === 'excel' ? (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <CheckCircle size={18} color="#16a34a" />
                       <span>
-                        <strong>{validationResult.quantity} Serials Valid:</strong> <strong className="font-mono">{validationResult.startSerialNumber}</strong> to <strong className="font-mono">{validationResult.endSerialNumber}</strong>
+                        Range: <strong className="font-mono">{validationResult.startSerialNumber}</strong> to{' '}
+                        <strong className="font-mono">{validationResult.endSerialNumber}</strong>
                       </span>
-                    ) : (
-                      <span>
-                        Range Available: <strong className="font-mono">{validationResult.startSerialNumber}</strong> to <strong className="font-mono">{validationResult.endSerialNumber}</strong>
-                      </span>
-                    )}
+                    </div>
+                    <span
+                      style={{
+                        backgroundColor: '#dcfce7',
+                        color: '#15803d',
+                        fontWeight: '700',
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        border: '1px solid #bbf7d0',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.3px',
+                      }}
+                    >
+                      Available
+                    </span>
+                  </div>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      paddingTop: '8px',
+                      borderTop: '1px dashed #bbf7d0',
+                      fontSize: '12.5px',
+                    }}
+                  >
+                    <span>
+                      Command:{' '}
+                      <strong style={{ color: '#0f172a', fontSize: '13px' }}>
+                        {inputMode === 'excel'
+                          ? `${importedSerials.length.toLocaleString()} Labels`
+                          : `${parseInt(quantity || validationResult.quantity || 0, 10).toLocaleString()} Labels`}
+                      </strong>
+                    </span>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      Total Output:{' '}
+                      <strong
+                        style={{
+                          color: '#0066cc',
+                          backgroundColor: '#ffffff',
+                          padding: '2px 9px',
+                          borderRadius: '6px',
+                          border: '1.5px solid #93c5fd',
+                          fontSize: '13px',
+                          fontWeight: '800',
+                        }}
+                      >
+                        {validationResult.totalPages || calculatedPages} PDF {(validationResult.totalPages || calculatedPages) === 1 ? 'Page' : 'Pages'}
+                      </strong>
+                    </span>
                   </div>
                 </div>
               ) : null}
@@ -1579,7 +1662,16 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
               <button
                 type="submit"
                 className="btn btn-primary"
-                style={{ width: '100%', padding: '12px', fontSize: '15px' }}
+                style={{
+                  width: '100%',
+                  padding: '13px 16px',
+                  fontSize: '15px',
+                  fontWeight: '700',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                }}
                 disabled={
                   generating ||
                   !!validationError ||
@@ -1589,11 +1681,13 @@ export default function BarcodeGenerator({ onBatchCompleted, onPreviewBatch }) {
                 }
               >
                 <Sparkles size={18} />
-                {generating
-                  ? `Generating PDF (${progress}%)...`
-                  : inputMode === 'excel'
-                  ? `Generate ${currentPreset.name} PDF (${importedSerials.length} labels)`
-                  : `Generate ${currentPreset.name} PDF Batch`}
+                {generating ? (
+                  `Generating PDF (${progress}%)...`
+                ) : inputMode === 'excel' ? (
+                  `Generate ${importedSerials.length?.toLocaleString()} Labels (${calculatedPages} PDF Pages)`
+                ) : (
+                  `Generate ${parseInt(quantity || 0, 10).toLocaleString()} Labels (${calculatedPages} PDF Pages)`
+                )}
               </button>
             </form>
           )}
