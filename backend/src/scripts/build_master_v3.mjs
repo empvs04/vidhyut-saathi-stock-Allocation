@@ -88,6 +88,10 @@ async function buildMasterTemplateV4() {
       <!-- Company Name Text Line below cards (BOLDER) -->
       <text x="${W / 2}" y="${companyNameY}" class="company-name">VIDHYUT SAATHI ENERGY SAVERS PVT. LTD.</text>
 
+      <!-- MRP Box Right Border: Darkened to match the other 3 borders perfectly -->
+      <path d="M 1130 45.5 C 1148 45.5 1157.5 57 1157.5 74 L 1157.5 280 C 1157.5 297 1148 307.5 1130 307.5"
+            fill="none" stroke="#000000" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+
       <!-- Barcode Container Box (Single crisp rounded rectangle with pure white interior) -->
       <rect x="${boxX}" y="${boxY}" width="${boxW}" height="${boxH}" rx="14"
             fill="#FFFFFF" stroke="#000000" stroke-width="2.5"/>
