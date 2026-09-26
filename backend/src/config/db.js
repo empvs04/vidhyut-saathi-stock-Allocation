@@ -13,7 +13,7 @@ export async function connectDB() {
   try {
     console.log('Connecting to MongoDB Atlas...');
     const conn = await mongoose.connect(primaryUri, {
-      serverSelectionTimeoutMS: 8000,
+      serverSelectionTimeoutMS: 2000,
     });
     isConnected = true;
     console.log(`MongoDB Connected: ${conn.connection.host} (Database: ${conn.connection.name})`);
@@ -24,7 +24,7 @@ export async function connectDB() {
       try {
         console.log('Attempting local MongoDB fallback...');
         const conn = await mongoose.connect(fallbackUri, {
-          serverSelectionTimeoutMS: 4000,
+          serverSelectionTimeoutMS: 1500,
         });
         isConnected = true;
         console.log(`Local MongoDB Connected: ${conn.connection.host}`);

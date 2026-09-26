@@ -62,14 +62,18 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server & Connect Database
-async function startServer() {
-  await connectDB();
+function startServer() {
   app.listen(PORT, () => {
     console.log(`=======================================================`);
     console.log(` VIDHYUT SAATHI BARCODE ENGINE RUNNING ON PORT ${PORT}`);
     console.log(` API Endpoint: http://localhost:${PORT}/api/health`);
     console.log(` Static Storage: http://localhost:${PORT}/storage/`);
     console.log(`=======================================================`);
+  });
+
+  // Connect to DB asynchronously without blocking server readiness
+  connectDB().catch((err) => {
+    console.warn('Initial DB connection issue:', err.message);
   });
 }
 
