@@ -4,26 +4,55 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-dotenv.config();
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
 async function cleanAll() {
+  console.log('--- Starting Complete Backend Data Cleanup ---');
+
   // 1. Clean MongoDB Atlas
-  try {
-    console.log('Connecting to MongoDB Atlas to clean...');
-    await mongoose.connect(process.env.MONGODB_URI);
-    const db = mongoose.connection.db;
-    await db.collection('barcodebatches').deleteMany({});
-    await db.collection('barcoderecords').deleteMany({});
-    console.log('MongoDB Atlas: Successfully cleared all test batches and records.');
-    await mongoose.disconnect();
-  } catch (err) {
-    console.error('Atlas cleanup error:', err.message);
+  if (process.env.MONGODB_URI) {
+    try {
+      console.log('Connecting to MongoDB Atlas to clean...');
+      await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10000 });
+      const db = mongoose.connection.db;
+      const collections = await db.listCollections().toArray();
+      console.log('Collections in Atlas:', collections.map((c) => c.name));
+
+      const batchRes = await db.collection('barcodebatches').deleteMany({});
+      const recRes = await db.collection('barcoderecords').deleteMany({});
+      console.log(`MongoDB Atlas: Deleted ${batchRes.deletedCount} batches and ${recRes.deletedCount} records.`);
+
+      await mongoose.disconnect();
+    } catch (err) {
+      console.error('Atlas cleanup error:', err.message);
+    }
   }
 
-  // 2. Reset local db_store.json
+  // 2. Clean Fallback MongoDB if running
+  if (process.env.FALLBACK_MONGODB_URI) {
+    try {
+      console.log('Checking local MongoDB fallback...');
+      await mongoose.connect(process.env.FALLBACK_MONGODB_URI, { serverSelectionTimeoutMS: 3000 });
+      const db = mongoose.connection.db;
+      const collections = await db.listCollections().toArray();
+      if (collections.some(c => c.name === 'barcodebatches')) {
+        const batchRes = await db.collection('barcodebatches').deleteMany({});
+        console.log(`Local MongoDB: Deleted ${batchRes.deletedCount} batches.`);
+      }
+      if (collections.some(c => c.name === 'barcoderecords')) {
+        const recRes = await db.collection('barcoderecords').deleteMany({});
+        console.log(`Local MongoDB: Deleted ${recRes.deletedCount} records.`);
+      }
+      await mongoose.disconnect();
+    } catch (err) {
+      console.log('Local MongoDB not reachable or not running (skipping fallback clean):', err.message);
+    }
+  }
+
+  // 3. Reset local db_store.json
   try {
     const storePath = path.resolve(__dirname, '../../storage/db_store.json');
     const initialData = {
@@ -60,28 +89,30 @@ async function cleanAll() {
       ],
     };
     fs.writeFileSync(storePath, JSON.stringify(initialData, null, 2), 'utf-8');
-    console.log('Local store: Successfully reset to fresh empty state.');
+    console.log('Local db_store.json: Successfully reset to fresh empty state (0 batches, 0 records).');
   } catch (err) {
     console.error('Local store cleanup error:', err.message);
   }
 
-  // 3. Clean old PDFs
+  // 4. Clean old PDFs
   try {
     const pdfDir = path.resolve(__dirname, '../../storage/pdfs');
     if (fs.existsSync(pdfDir)) {
       const files = fs.readdirSync(pdfDir);
+      let count = 0;
       for (const f of files) {
         if (f.endsWith('.pdf')) {
           fs.unlinkSync(path.join(pdfDir, f));
-          console.log('Deleted old PDF:', f);
+          count++;
         }
       }
+      console.log(`Deleted ${count} old PDF files from storage/pdfs.`);
     }
   } catch (err) {
     console.error('PDF cleanup error:', err.message);
   }
 
-  console.log('Database and local cache are 100% fresh and clean!');
+  console.log('\n--- Cleanup Complete! Database and local cache are 100% fresh and clean ---');
 }
 
 cleanAll();
