@@ -49,7 +49,7 @@ export default function CardPreview({
   width = 360, // visual width in px (maintains 4:3 aspect ratio)
   showCropGuides = false,
 }) {
-  const height = (width * 3) / 4; // exact 4:3 aspect ratio (1.5" / 2" = 3/4)
+  const height = Math.round((width * 3) / 4); // exact 4:3 aspect ratio (1.5" / 2" = 3/4)
   const pattern = useMemo(() => generateCode128SvgPattern(serialNumber), [serialNumber]);
 
   return (
@@ -73,9 +73,12 @@ export default function CardPreview({
           src="/clean_label_template.png"
           alt="Vidhyut Saathi Approved Label Template"
           style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
             width: '100%',
             height: '100%',
-            objectFit: 'contain',
+            objectFit: 'fill',
             display: 'block',
             pointerEvents: 'none',
           }}

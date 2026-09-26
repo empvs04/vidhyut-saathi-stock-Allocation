@@ -214,14 +214,17 @@ export default function SheetPreview({
                 >
                   {slot.active ? (
                     <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
-                      {/* Master Label Artwork (Unstretched 4:3) */}
+                      {/* Master Label Artwork — fill entire cell with no letterbox gaps */}
                       <img
                         src="/clean_label_template.png"
                         alt="label"
                         style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
                           width: '100%',
                           height: '100%',
-                          objectFit: 'contain',
+                          objectFit: 'fill',
                           display: 'block',
                           pointerEvents: 'none',
                         }}
