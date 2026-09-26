@@ -174,12 +174,12 @@ export async function renderBatchPDF({
           //    Scale factor: 144 / 1200 = 0.12 pt/px.
           //    Master template barcode box: boxY = 540 px (64.80 pt), boxH = 266 px (31.92 pt)
           //    Barcode width: 980 px * 0.12 = 117.60 pt (centered: pos.x + 13.20 pt)
-          //    Barcode height: 140 px * 0.12 = 16.80 pt
-          //    Barcode Y: 564 px * 0.12 = 67.68 pt (pushed down slightly from top)
+          //    Barcode height: 136 px * 0.12 = 16.32 pt
+          //    Barcode Y: 576 px * 0.12 = 69.12 pt (clean balanced top margin inside box)
           const bcW = 117.60;
-          const bcH = 16.80;
+          const bcH = 16.32;
           const bcX = pos.x + 13.20;
-          const bcY = pos.y + 67.68;
+          const bcY = pos.y + 69.12;
 
           // 4. Draw barcode image (Code 128)
           doc.image(barcodePng, bcX, bcY, {
@@ -190,7 +190,7 @@ export async function renderBatchPDF({
 
           // 5. Draw bold serial number below barcode with clean breathing gap
           const serialFontSize = 6.8;
-          const textY = pos.y + 89.00;
+          const textY = pos.y + 89.50;
           doc
             .font('Helvetica-Bold')
             .fontSize(serialFontSize)
@@ -294,9 +294,9 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = '') {
   // 3. Barcode section geometry (label is 144 x 108 pt = 2.00" x 1.50")
   //    Template already contains the single crisp rounded rectangle barcode box.
   const bcW = 117.60;
-  const bcH = 16.80;
+  const bcH = 16.32;
   const bcX = (144 - bcW) / 2; // 13.20 pt
-  const bcY = 67.68;
+  const bcY = 69.12;
 
   // 4. Draw barcode
   doc.image(barcodePng, bcX, bcY, {
@@ -305,7 +305,7 @@ export async function renderSingleLabelPDF(serialNumber, cardSeries = '') {
   });
 
   // 5. Draw bold serial number below barcode with clean breathing gap
-  const textY = 89.00;
+  const textY = 89.50;
   doc
     .font('Helvetica-Bold')
     .fontSize(6.8)
@@ -411,9 +411,9 @@ export async function renderCalibrationTestPDF(sampleSerial = '0020231501') {
   });
 
   const bcW = 117.60;
-  const bcH = 16.80;
+  const bcH = 16.32;
   const bcX = labelX + 13.20;
-  const bcY = labelY + 67.68;
+  const bcY = labelY + 69.12;
 
   doc.image(barcodePng, bcX, bcY, {
     width: bcW,
@@ -421,7 +421,7 @@ export async function renderCalibrationTestPDF(sampleSerial = '0020231501') {
   });
 
   // Serial text below barcode with clean breathing gap
-  const textY = labelY + 89.00;
+  const textY = labelY + 89.50;
   doc
     .font('Helvetica-Bold')
     .fontSize(6.8)

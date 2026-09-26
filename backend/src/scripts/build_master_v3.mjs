@@ -75,9 +75,15 @@ async function buildMasterTemplateV4() {
         }
       </style>
 
-      <!-- Seamless Left and Right outer border bands matching straight section -->
-      <rect x="12" y="60" width="9.5" height="${footerY + 20 - 60}" fill="#000000"/>
-      <rect x="1178.5" y="60" width="9.5" height="${footerY + 20 - 60}" fill="#000000"/>
+      <!-- Clean gutters to eliminate any jagged/cut scan artifacts along straight borders -->
+      <rect x="0" y="65" width="12" height="${footerY - 65}" fill="#FFFFFF"/>
+      <rect x="22" y="65" width="19" height="${footerY - 65}" fill="#FFFFFF"/>
+      <rect x="1159" y="65" width="17" height="${footerY - 65}" fill="#FFFFFF"/>
+      <rect x="1187.5" y="65" width="12.5" height="${footerY - 65}" fill="#FFFFFF"/>
+
+      <!-- 100% Solid, uniform Left and Right outer borders with zero notches or cuts -->
+      <rect x="12" y="65" width="10" height="${footerY - 65}" fill="#000000"/>
+      <rect x="1176" y="65" width="11.5" height="${footerY - 65}" fill="#000000"/>
 
       <!-- Company Name Text Line below cards (BOLDER) -->
       <text x="${W / 2}" y="${companyNameY}" class="company-name">VIDHYUT SAATHI ENERGY SAVERS PVT. LTD.</text>
