@@ -78,15 +78,19 @@ export default function SavedBatches({ onPreviewBatch, onNavigate }) {
   };
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return '-';
+    if (!dateStr) return { date: '-', time: '' };
     const d = new Date(dateStr);
-    return d.toLocaleDateString('en-IN', {
+    const date = d.toLocaleDateString('en-IN', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
+    });
+    const time = d.toLocaleTimeString('en-IN', {
       hour: '2-digit',
       minute: '2-digit',
+      hour12: true,
     });
+    return { date, time };
   };
 
   const formatBytes = (bytes) => {
@@ -97,7 +101,7 @@ export default function SavedBatches({ onPreviewBatch, onNavigate }) {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
       {/* Top Banner */}
       <div
         className="card"
@@ -105,26 +109,27 @@ export default function SavedBatches({ onPreviewBatch, onNavigate }) {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '18px 24px',
+          padding: '12px 20px',
         }}
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FileText size={22} color="#0066cc" />
-            <h2 style={{ fontSize: '18px', fontWeight: '800', color: '#0f172a' }}>
+            <FileText size={18} color="#0066cc" />
+            <h2 style={{ fontSize: '16px', fontWeight: '800', color: '#0f172a', margin: 0 }}>
               Saved Batches & PDF Management
             </h2>
           </div>
-          <div style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>
+          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
             Browse, preview, and download 12" × 18" print sheets saved in persistent storage.
           </div>
         </div>
 
         <button
           className="btn btn-primary"
+          style={{ padding: '7px 14px', fontSize: '13px' }}
           onClick={() => onNavigate('generator')}
         >
-          <Sparkles size={16} />
+          <Sparkles size={14} />
           Create New Batch
         </button>
       </div>
@@ -133,22 +138,22 @@ export default function SavedBatches({ onPreviewBatch, onNavigate }) {
       {deleteNotification && (
         <div
           style={{
-            padding: '12px 16px',
-            borderRadius: '10px',
+            padding: '10px 14px',
+            borderRadius: '8px',
             backgroundColor: deleteNotification.type === 'success' ? '#f0fdf4' : '#fef2f2',
             border: `1px solid ${deleteNotification.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
             color: deleteNotification.type === 'success' ? '#166534' : '#991b1b',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            fontSize: '13.5px',
+            fontSize: '12.5px',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {deleteNotification.type === 'success' ? (
-              <CheckCircle2 size={18} color="#16a34a" />
+              <CheckCircle2 size={16} color="#16a34a" />
             ) : (
-              <AlertCircle size={18} color="#dc2626" />
+              <AlertCircle size={16} color="#dc2626" />
             )}
             <span>{deleteNotification.message}</span>
           </div>
@@ -156,7 +161,7 @@ export default function SavedBatches({ onPreviewBatch, onNavigate }) {
             onClick={() => setDeleteNotification(null)}
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', padding: '2px' }}
           >
-            <X size={16} />
+            <X size={15} />
           </button>
         </div>
       )}
@@ -165,37 +170,37 @@ export default function SavedBatches({ onPreviewBatch, onNavigate }) {
       <div
         className="card"
         style={{
-          padding: '14px 20px',
+          padding: '8px 16px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '16px',
+          gap: '12px',
         }}
       >
-        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '10px', flex: 1, maxWidth: '500px' }}>
+        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '8px', flex: 1, maxWidth: '480px' }}>
           <div style={{ position: 'relative', flex: 1 }}>
-            <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '12px' }} />
+            <Search size={14} color="#94a3b8" style={{ position: 'absolute', left: '10px', top: '9px' }} />
             <input
               type="text"
               className="form-input"
-              style={{ paddingLeft: '36px', width: '100%' }}
+              style={{ width: '100%', padding: '6px 10px 6px 30px', fontSize: '12.5px' }}
               placeholder="Search by Batch Name, Batch ID, or Serial Number..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <button type="submit" className="btn btn-secondary">
+          <button type="submit" className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '12.5px' }}>
             Search
           </button>
         </form>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#64748b' }}>
-            <Filter size={15} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#64748b' }}>
+            <Filter size={13} />
             <span>Status:</span>
             <select
               className="form-select"
-              style={{ padding: '6px 10px', fontSize: '13px' }}
+              style={{ padding: '5px 8px', fontSize: '12px' }}
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -208,146 +213,154 @@ export default function SavedBatches({ onPreviewBatch, onNavigate }) {
 
           <button
             className="btn btn-secondary"
-            style={{ padding: '7px 10px' }}
+            style={{ padding: '5px 8px' }}
             onClick={fetchBatches}
             title="Refresh Batches"
           >
-            <RefreshCw size={15} className={loading ? 'spin' : ''} />
+            <RefreshCw size={13} className={loading ? 'spin' : ''} />
           </button>
         </div>
       </div>
 
-      {/* Batches Table */}
+      {/* Batches Table - Zero Horizontal Scroll */}
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div className="table-container" style={{ border: 'none' }}>
-          <table className="data-table">
+        <div className="table-container" style={{ border: 'none', overflowX: 'hidden', width: '100%' }}>
+          <table className="data-table" style={{ width: '100%', tableLayout: 'auto' }}>
             <thead>
               <tr>
-                <th>Batch Information</th>
-                <th>Series</th>
-                <th>Serial Numbers Range</th>
-                <th>Quantity</th>
-                <th>Pages</th>
-                <th>File Size</th>
-                <th>Generated Date</th>
-                <th>Status</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+                <th style={{ padding: '8px 10px', fontSize: '12px' }}>Batch Information</th>
+                <th style={{ padding: '8px 8px', fontSize: '12px', textAlign: 'center' }}>Series</th>
+                <th style={{ padding: '8px 10px', fontSize: '12px' }}>Serial Range</th>
+                <th style={{ padding: '8px 8px', fontSize: '12px', textAlign: 'center' }}>Qty</th>
+                <th style={{ padding: '8px 8px', fontSize: '12px', textAlign: 'center' }}>Pages</th>
+                <th style={{ padding: '8px 8px', fontSize: '12px', textAlign: 'center' }}>File Size</th>
+                <th style={{ padding: '8px 10px', fontSize: '12px' }}>Generated Date</th>
+                <th style={{ padding: '8px 8px', fontSize: '12px', textAlign: 'center' }}>Status</th>
+                <th style={{ padding: '8px 10px', fontSize: '12px', textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan="9" style={{ textAlign: 'center', padding: '36px', color: '#64748b' }}>
-                    <RefreshCw size={24} className="spin" style={{ margin: '0 auto 8px' }} />
-                    <div>Loading saved batches...</div>
+                  <td colSpan="9" style={{ textAlign: 'center', padding: '32px', color: '#64748b' }}>
+                    <RefreshCw size={20} className="spin" style={{ margin: '0 auto 6px' }} />
+                    <div style={{ fontSize: '13px' }}>Loading saved batches...</div>
                   </td>
                 </tr>
               ) : batches.length === 0 ? (
                 <tr>
-                  <td colSpan="9" style={{ textAlign: 'center', padding: '48px', color: '#94a3b8' }}>
-                    <FileText size={36} style={{ margin: '0 auto 10px', opacity: 0.5 }} />
-                    <div style={{ fontSize: '15px', fontWeight: '600', color: '#334155' }}>No Batches Found</div>
-                    <div style={{ fontSize: '13px', marginTop: '4px' }}>
+                  <td colSpan="9" style={{ textAlign: 'center', padding: '36px', color: '#94a3b8' }}>
+                    <FileText size={32} style={{ margin: '0 auto 8px', opacity: 0.5 }} />
+                    <div style={{ fontSize: '14px', fontWeight: '600', color: '#334155' }}>No Batches Found</div>
+                    <div style={{ fontSize: '12px', marginTop: '3px' }}>
                       {search ? 'Try adjusting your search criteria.' : 'Generate your first batch of barcode labels!'}
                     </div>
                   </td>
                 </tr>
               ) : (
-                batches.map((b) => (
-                  <tr key={b._id}>
-                    <td>
-                      <div style={{ fontWeight: '700', color: '#0f172a' }}>{b.batchName}</div>
-                      <div style={{ fontSize: '11.5px', color: '#64748b', fontFamily: 'monospace' }}>
-                        {b.batchId}
-                      </div>
-                    </td>
-                    <td>
-                      <span className="badge badge-primary">{b.cardSeries}</span>
-                    </td>
-                    <td>
-                      <div className="font-mono" style={{ fontSize: '12.5px', color: '#0066cc', fontWeight: '600' }}>
-                        {b.startSerialNumber}
-                      </div>
-                      <div className="font-mono" style={{ fontSize: '11.5px', color: '#64748b' }}>
-                        to {b.endSerialNumber}
-                      </div>
-                    </td>
-                    <td style={{ fontWeight: '700', fontSize: '14px' }}>
-                      {b.quantity?.toLocaleString()}
-                    </td>
-                    <td>
-                      <span style={{ fontWeight: '600', color: '#334155' }}>{b.totalPages}</span>
-                      <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block' }}>
-                        (55/page)
-                      </span>
-                    </td>
-                    <td style={{ fontSize: '12.5px', color: '#64748b' }}>
-                      {formatBytes(b.pdfFileSize)}
-                    </td>
-                    <td style={{ fontSize: '12px', color: '#475569' }}>
-                      {formatDate(b.createdAt)}
-                    </td>
-                    <td>
-                      <span
-                        className={`badge badge-${
-                          b.status === 'completed'
-                            ? 'success'
-                            : b.status === 'failed'
-                            ? 'danger'
-                            : 'warning'
-                        }`}
-                      >
-                        {b.status === 'completed' ? (
-                          <CheckCircle2 size={12} />
-                        ) : b.status === 'failed' ? (
-                          <AlertCircle size={12} />
-                        ) : (
-                          <Clock size={12} />
-                        )}
-                        {b.status}
-                      </span>
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <div style={{ display: 'inline-flex', gap: '6px' }}>
-                        <button
-                          className="btn btn-secondary"
-                          style={{ padding: '5px 9px', fontSize: '12px' }}
-                          onClick={() => onPreviewBatch(b)}
-                          title="Preview in Browser"
+                batches.map((b) => {
+                  const { date, time } = formatDate(b.createdAt);
+                  return (
+                    <tr key={b._id}>
+                      <td style={{ padding: '7px 10px', verticalAlign: 'middle' }}>
+                        <div style={{ fontWeight: '700', color: '#0f172a', fontSize: '13px', lineHeight: 1.25 }}>
+                          {b.batchName}
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#64748b', fontFamily: 'monospace' }}>
+                          {b.batchId}
+                        </div>
+                      </td>
+                      <td style={{ padding: '7px 8px', textAlign: 'center', verticalAlign: 'middle' }}>
+                        <span className="badge badge-primary" style={{ padding: '2px 6px', fontSize: '10.5px' }}>
+                          {b.cardSeries}
+                        </span>
+                      </td>
+                      <td style={{ padding: '7px 10px', verticalAlign: 'middle' }}>
+                        <div className="font-mono" style={{ fontSize: '11.5px', color: '#0066cc', fontWeight: '700', whiteSpace: 'nowrap' }}>
+                          {b.startSerialNumber}
+                        </div>
+                        <div className="font-mono" style={{ fontSize: '10.5px', color: '#64748b', whiteSpace: 'nowrap' }}>
+                          to {b.endSerialNumber}
+                        </div>
+                      </td>
+                      <td style={{ padding: '7px 8px', textAlign: 'center', fontWeight: '700', fontSize: '13px', verticalAlign: 'middle' }}>
+                        {b.quantity?.toLocaleString()}
+                      </td>
+                      <td style={{ padding: '7px 8px', textAlign: 'center', verticalAlign: 'middle' }}>
+                        <div style={{ fontWeight: '600', color: '#334155', fontSize: '12.5px' }}>{b.totalPages}</div>
+                        <div style={{ fontSize: '10px', color: '#94a3b8' }}>(55/p)</div>
+                      </td>
+                      <td style={{ padding: '7px 8px', textAlign: 'center', fontSize: '11.5px', color: '#64748b', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+                        {formatBytes(b.pdfFileSize)}
+                      </td>
+                      <td style={{ padding: '7px 10px', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+                        <div style={{ fontSize: '11.5px', color: '#475569', fontWeight: '500' }}>{date}</div>
+                        <div style={{ fontSize: '10.5px', color: '#94a3b8' }}>{time}</div>
+                      </td>
+                      <td style={{ padding: '7px 8px', textAlign: 'center', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+                        <span
+                          className={`badge badge-${
+                            b.status === 'completed'
+                              ? 'success'
+                              : b.status === 'failed'
+                              ? 'danger'
+                              : 'warning'
+                          }`}
+                          style={{ fontSize: '10.5px', padding: '2px 7px' }}
                         >
-                          <Eye size={14} />
-                          Preview
-                        </button>
-                        <a
-                          href={BatchesAPI.getPdfDownloadUrl(b.batchId)}
-                          className="btn btn-primary"
-                          style={{ padding: '5px 9px', fontSize: '12px', textDecoration: 'none' }}
-                          download
-                          title="Download 12x18 PDF"
-                        >
-                          <Download size={14} />
-                          PDF
-                        </a>
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          style={{
-                            padding: '5px 9px',
-                            fontSize: '12px',
-                            color: '#dc2626',
-                            borderColor: '#fecaca',
-                            backgroundColor: '#fff5f5',
-                          }}
-                          onClick={() => setDeleteModalBatch(b)}
-                          title="Delete Batch & Free Memory"
-                        >
-                          <Trash2 size={14} />
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          {b.status === 'completed' ? (
+                            <CheckCircle2 size={11} />
+                          ) : b.status === 'failed' ? (
+                            <AlertCircle size={11} />
+                          ) : (
+                            <Clock size={11} />
+                          )}
+                          {b.status?.toUpperCase()}
+                        </span>
+                      </td>
+                      <td style={{ padding: '7px 10px', textAlign: 'right', verticalAlign: 'middle' }}>
+                        <div style={{ display: 'inline-flex', gap: '4px', whiteSpace: 'nowrap' }}>
+                          <button
+                            className="btn btn-secondary"
+                            style={{ padding: '4px 7px', fontSize: '11px', gap: '3px' }}
+                            onClick={() => onPreviewBatch(b)}
+                            title="Preview in Browser"
+                          >
+                            <Eye size={12} />
+                            Preview
+                          </button>
+                          <a
+                            href={BatchesAPI.getPdfDownloadUrl(b.batchId)}
+                            className="btn btn-primary"
+                            style={{ padding: '4px 7px', fontSize: '11px', gap: '3px', textDecoration: 'none' }}
+                            download
+                            title="Download 12x18 PDF"
+                          >
+                            <Download size={12} />
+                            PDF
+                          </a>
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            style={{
+                              padding: '4px 7px',
+                              fontSize: '11px',
+                              gap: '3px',
+                              color: '#dc2626',
+                              borderColor: '#fecaca',
+                              backgroundColor: '#fff5f5',
+                            }}
+                            onClick={() => setDeleteModalBatch(b)}
+                            title="Delete Batch & Free Memory"
+                          >
+                            <Trash2 size={12} />
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
