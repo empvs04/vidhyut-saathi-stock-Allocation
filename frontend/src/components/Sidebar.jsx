@@ -2,6 +2,7 @@ import React from 'react';
 import {
   LayoutDashboard,
   Barcode,
+  Layers,
   Grid,
   FileText,
   ListOrdered,
@@ -14,6 +15,7 @@ import {
 const MENU_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'generator', label: 'Barcode Generator', icon: Barcode, badge: 'Core' },
+  { id: 'range_generator', label: 'Range Label Generator', icon: Layers, badge: '10-Pack' },
   { id: 'layout', label: 'Sheet Layout Preview', icon: Grid },
   { id: 'batches', label: 'Saved Batches', icon: FileText },
   { id: 'records', label: 'Barcode Records', icon: ListOrdered },

@@ -11,6 +11,7 @@ import batchRoutes from './src/routes/batch.routes.js';
 import recordRoutes from './src/routes/record.routes.js';
 import templateRoutes from './src/routes/template.routes.js';
 import statsRoutes from './src/routes/stats.routes.js';
+import rangeBatchRoutes from './src/routes/rangeBatch.routes.js';
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use('/assets', express.static(path.resolve(__dirname, 'src/assets')));
 
 // API Routes
 app.use('/api/batches', batchRoutes);
+app.use('/api/range-batches', rangeBatchRoutes);
 app.use('/api/records', recordRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/stats', statsRoutes);

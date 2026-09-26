@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import BarcodeGenerator from './pages/BarcodeGenerator';
+import RangeLabelGenerator from './pages/RangeLabelGenerator';
 import SheetLayoutPreview from './pages/SheetLayoutPreview';
 import SavedBatches from './pages/SavedBatches';
 import BarcodeRecords from './pages/BarcodeRecords';
@@ -44,6 +45,12 @@ export default function App() {
           {activeTab === 'generator' && (
             <BarcodeGenerator
               onBatchCompleted={(b) => {}}
+              onPreviewBatch={(b) => setPreviewBatch(b)}
+            />
+          )}
+
+          {activeTab === 'range_generator' && (
+            <RangeLabelGenerator
               onPreviewBatch={(b) => setPreviewBatch(b)}
             />
           )}
